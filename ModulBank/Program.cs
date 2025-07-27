@@ -1,3 +1,4 @@
+using FluentValidation;
 using ModulBank.DataAccess;
 using ModulBank.Features;
 using ModulBank.Features.Domain;
@@ -12,6 +13,8 @@ services.AddSingleton<IAccountRepository, AccountRepository>();
 services.AddMediatR(cfg =>
 {
 });
+
+services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 var app = builder.Build();
 
