@@ -22,14 +22,24 @@ public class AccountRepository : IAccountRepository
 
     public Task<IReadOnlyList<Account>> FindAsync(IAccountRepository.FindAccountsFilter filter, CancellationToken ct = default)
     {
-        if (filter is not IAccountRepository.FindAccountsFilter.ByIdFilter byIdFilter)
-            throw new NotImplementedException();
         IReadOnlyList<Account> res = [];
-        if (Accounts.TryGetValue(byIdFilter.Id, out var value))
+        if (filter is IAccountRepository.FindAccountsFilter.ByIdFilter byIdFilter)
         {
-            res = [value];
-        }
+            if (Accounts.TryGetValue(byIdFilter.Id, out var value))
+            {
+                res = [value];
+            }
             
-        return Task.FromResult(res);
+            return Task.FromResult(res);
+        }
+
+        if (filter is IAccountRepository.FindAccountsFilter.EmptyFilter)
+        {
+            res  = Accounts.Values.ToArray();
+
+            return Task.FromResult(res);
+        }
+
+        throw new NotImplementedException($"Unknown filter {nameof(filter)}.");
     }
 }

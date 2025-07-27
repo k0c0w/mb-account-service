@@ -10,6 +10,8 @@ public interface IAccountRepository
 
     public abstract record FindAccountsFilter
     {
-        public record ByIdFilter(Guid Id) : FindAccountsFilter;
+        public sealed record ByIdFilter(Guid Id) : FindAccountsFilter;
+
+        public sealed record EmptyFilter : FindAccountsFilter;
     }
 }

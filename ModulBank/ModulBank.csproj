@@ -43,6 +43,15 @@
       <Compile Update="Features\CreateNewAccountCommandValidator.cs">
         <DependentUpon>CreateNewAccount.cs</DependentUpon>
       </Compile>
+      <Compile Update="Features\GetAccountsQuery.cs">
+        <DependentUpon>GetAccounts.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\AccountDto.cs">
+        <DependentUpon>GetAccounts.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\GetAccountsQueryHandler.cs">
+        <DependentUpon>GetAccounts.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

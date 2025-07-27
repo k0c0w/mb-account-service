@@ -18,14 +18,12 @@ services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.MapOpenApi();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 CreateNewAccount.RegisterHttpEndpoint(app);
 RemoveAccount.RegisterHttpEndpoint(app);
+GetAccounts.RegisterHttpEndpoint(app);
 
 app.Run();
