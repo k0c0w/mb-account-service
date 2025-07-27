@@ -29,5 +29,6 @@ GetAccountsByOwnerId.RegisterHttpEndpoint(app);
 ChangeAccountInterestRate.RegisterHttpEndpoint(app);
 TransferMoney.RegisterHttpEndpoint(app);
 RegisterExternalTransaction.RegisterHttpEndpoint(app);
+GetAccountStatement.RegisterHttpEndpoint(app);
 
 app.Run();

@@ -91,6 +91,18 @@
       <Compile Update="Features\AccountByOwnerIdDto.cs">
         <DependentUpon>GetAccountsByOwnerId.cs</DependentUpon>
       </Compile>
+      <Compile Update="Features\GetAccountStatementQuery.cs">
+        <DependentUpon>GetAccountStatement.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\AccountStatementDto.cs">
+        <DependentUpon>GetAccountStatement.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\GetAccountStatementQueryHandler.cs">
+        <DependentUpon>GetAccountStatement.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\GetAccountStatementQueryValidator.cs">
+        <DependentUpon>GetAccountStatement.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

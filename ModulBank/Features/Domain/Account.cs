@@ -2,6 +2,8 @@ namespace ModulBank.Features.Domain;
 
 public class Account
 {
+    private const decimal InitialBalance = decimal.Zero;
+    
     public Guid Id { get; }
     
     public Guid OwnerId { get; } 
@@ -53,7 +55,7 @@ public class Account
 
         InterestRate = interestRate;
         CreationTimeUtc = DateTimeOffset.UtcNow;
-        Balance = new Currency(currencyCode, decimal.Zero);
+        Balance = new Currency(currencyCode, InitialBalance);
 
         _transactions = [];
     }
@@ -136,7 +138,20 @@ public class Account
             DebitMoney(money, "External payment operation");
         }
     }
+    
+    public decimal GetBalanceAt(DateTimeOffset time)
+    {
+        return _transactions
+            .TakeWhile(t => t.TimeUtc <= time)
+            .Aggregate(InitialBalance, (sum, transaction) =>
+        {
+            var amount = transaction.Amount.Amount;
+            var valueToAdd = transaction.Type == TransactionType.Debit ? amount : -amount;
 
+            return sum + valueToAdd;
+        });
+    }
+    
     private void ThrowIfInsufficientBalance(Currency money)
     {
         if (Balance.Amount - money.Amount < decimal.Zero)
