@@ -1,10 +1,17 @@
+using ModulBank.DataAccess;
 using ModulBank.Features;
+using ModulBank.Features.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
 services.AddOpenApi();
 services.AddSwaggerGen();
+
+services.AddSingleton<IAccountRepository, AccountRepository>();
+services.AddMediatR(cfg =>
+{
+});
 
 var app = builder.Build();
 
