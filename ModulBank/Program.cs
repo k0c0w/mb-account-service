@@ -26,5 +26,6 @@ if (app.Environment.IsDevelopment())
 }
 
 CreateNewAccount.RegisterHttpEndpoint(app);
+RemoveAccount.RegisterHttpEndpoint(app);
 
 app.Run();
