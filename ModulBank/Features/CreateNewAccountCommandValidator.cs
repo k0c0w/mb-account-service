@@ -13,13 +13,9 @@ public class CreateNewAccountCommandValidator : AbstractValidator<CreateNewAccou
 
         RuleFor(x => x.AccountType)
             .NotNull()
-            .NotEmpty()
-            .Must(x => Enum.TryParse<AccountType>(x, out _))
-            .WithMessage("Unsupported account type.");
+            .NotEmpty();
         
         RuleFor(x => x.CurrencyCode)
-            .NotNull()
-            .NotEmpty()
-            .Length(3);
+            .SetValidator(new CurrencyCodeValidator());
     }
 }
