@@ -14,7 +14,7 @@ services.AddOpenApi();
 services.AddSwaggerGen();
 
 services.AddLogging(cfg => cfg.AddConsole());
-
+services.AddMemoryCache();
 services.AddAllFromAssembly(currentAssembly);
 
 services.AddSingleton<IUserVerificator, UserVerificator>();
@@ -25,6 +25,7 @@ services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(currentAssembly);
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+    cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
 });
 
 services.AddValidatorsFromAssembly(currentAssembly);
