@@ -49,4 +49,18 @@ public class AccountRepository : IAccountRepository
 
         throw new NotImplementedException($"Unknown filter {nameof(filter)}.");
     }
+
+    public async Task<Account> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var idFilter = new IAccountRepository.FindAccountsFilter.ByIdFilter(id);
+
+        var accounts = await FindAsync(idFilter, ct);
+        
+        if (id == Guid.Empty || accounts.Count == 0)
+        {
+            throw DomainException.CreateExistenceException("Account is not found.");
+        }
+
+        return accounts[0];
+    }
 }

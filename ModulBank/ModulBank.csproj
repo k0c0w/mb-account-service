@@ -70,6 +70,15 @@
       <Compile Update="Features\TransferMoneyCommandHandler.cs">
         <DependentUpon>TransferMoney.cs</DependentUpon>
       </Compile>
+      <Compile Update="Features\RegisterExternalTransactionCommand.cs">
+        <DependentUpon>RegisterExternalTransaction.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\RegisterExternalTransactionCommandValidator.cs">
+        <DependentUpon>RegisterExternalTransaction.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\RegisterExternalTransactionCommandHandler.cs">
+        <DependentUpon>RegisterExternalTransaction.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

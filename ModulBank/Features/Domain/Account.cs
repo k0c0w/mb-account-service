@@ -107,21 +107,50 @@ public class Account
         if (recipient.Balance.Code != Balance.Code)
         {
             var invOpMessage = $"An attempt to send money from account {Id} to {recipient.Id}, but currencies did not match: {Balance.Code} != {recipient.Balance.Code}.";
-            throw DomainException.CreateValidationException("Can not send money to account which has another currency.", 
+            throw DomainException.CreateValidationException("Recipient account has another currency type.", 
                 new InvalidOperationException(invOpMessage));
         }
-        
+
+        ThrowIfInsufficientBalance(money);
+
+        CreditMoney(money, recipient.Id);
+        recipient.DebitMoney(money, Id);
+    }
+
+    public void ApplyIncomingTransaction(TransactionType transactionType, Currency money)
+    {
+        if (money.Code != Balance.Code)
+        {
+            var invOpMessage = $"An attempt to apply incoming transaction, but currencies did not match: {money.Code} != {Balance.Code}.";
+            throw DomainException.CreateValidationException("Account has another currency type.", 
+                new InvalidOperationException(invOpMessage));
+        }
+
+        decimal newBalance;
+        if (transactionType == TransactionType.Credit)
+        {
+            ThrowIfInsufficientBalance(money);
+            newBalance = Balance.Amount - money.Amount;
+        }
+        else
+        {
+            newBalance = Balance.Amount + money.Amount;
+        }
+        Balance = new Currency(Balance.Code, newBalance);
+
+        _transactions.Add(new Transaction(Id, transactionType, money, "External transaction."));
+    }
+
+    private void ThrowIfInsufficientBalance(Currency money)
+    {
         if (Balance.Amount - money.Amount < decimal.Zero)
         {
             var invOpMessage =  $"An attempt to credit money from account {Id} by {money.Amount}, but account has only {Balance.Amount}.";
             throw DomainException.CreateValidationException("Insufficient account balance.", 
                 new InvalidOperationException(invOpMessage));
         }
-
-        CreditMoney(money, recipient.Id);
-        recipient.DebitMoney(money, Id);
     }
-
+    
     private void CreditMoney(Currency money, Guid? counterpartyAccountId = default)
     {
         var transaction = new Transaction(Id, 
@@ -146,5 +175,5 @@ public class Account
         Balance = new Currency(Balance.Code, Balance.Amount + money.Amount);
     }
 
-    public bool IsClosed() => ClosingTimeUtc != null;
+    private bool IsClosed() => ClosingTimeUtc != null;
 }

@@ -9,6 +9,8 @@ public interface IAccountRepository
     Task RemoveAsync(Account account, CancellationToken ct = default);
     
     Task<IReadOnlyList<Account>> FindAsync(FindAccountsFilter filter, CancellationToken ct = default);
+    
+    Task<Account> GetByIdAsync(Guid id, CancellationToken ct = default);
 
     public abstract record FindAccountsFilter
     {
