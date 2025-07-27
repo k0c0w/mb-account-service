@@ -9,16 +9,7 @@ public class RemoveAccountCommandHandler(IAccountRepository accountRepository) :
     
     public async Task Handle(RemoveAccountCommand request, CancellationToken ct)
     {
-        var idFilter = new IAccountRepository.FindAccountsFilter.ByIdFilter(request.AccountId);
-
-        var accounts = await AccountRepository.FindAsync(idFilter, ct);
-        
-        if (request.AccountId == Guid.Empty || accounts.Count == 0)
-        {
-            throw DomainException.CreateExistenceException("Account is not found.");
-        }
-
-        var account = accounts[0];
+        var account = await AccountRepository.GetByIdAsync(request.AccountId, ct);
         
         account.Close();
         await AccountRepository.RemoveAsync(account, ct);

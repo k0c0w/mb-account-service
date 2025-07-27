@@ -12,14 +12,7 @@ public class ChangeAccountInterestRateCommandHandler(IAccountRepository accountR
     {
         var interestRate = new AccountInterestRate(request.Value);
             
-        var byIdFilter = new IAccountRepository.FindAccountsFilter.ByIdFilter(request.AccountId);
-        var accounts = await AccountRepository.FindAsync(byIdFilter, ct);
-        if (accounts.Count == 0 || request.AccountId == Guid.Empty)
-        {
-            throw DomainException.CreateExistenceException("Account does not exist.");
-        }
-
-        var account = accounts[0];
+        var account = await AccountRepository.GetByIdAsync(request.AccountId, ct);
         account.ChangeInterestRate(interestRate);
 
         await AccountRepository.UpdateAsync(account, ct);
