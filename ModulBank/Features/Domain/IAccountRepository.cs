@@ -15,6 +15,8 @@ public interface IAccountRepository
     public abstract record FindAccountsFilter
     {
         public sealed record ByIdFilter(Guid Id) : FindAccountsFilter;
+        
+        public sealed record ByOwnerIdFilter(Guid OwnerId) : FindAccountsFilter;
 
         public sealed record EmptyFilter : FindAccountsFilter;
     }

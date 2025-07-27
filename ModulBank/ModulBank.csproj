@@ -79,6 +79,18 @@
       <Compile Update="Features\RegisterExternalTransactionCommandHandler.cs">
         <DependentUpon>RegisterExternalTransaction.cs</DependentUpon>
       </Compile>
+      <Compile Update="Features\GetAccountsByOwnerIdQuery.cs">
+        <DependentUpon>GetAccountsByOwnerId.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\GetAccountsByOwnerIdQueryHandler.cs">
+        <DependentUpon>GetAccountsByOwnerId.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\GetAccountsByOwnerIdQueryValidator.cs">
+        <DependentUpon>GetAccountsByOwnerId.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\AccountByOwnerIdDto.cs">
+        <DependentUpon>GetAccountsByOwnerId.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

@@ -25,6 +25,7 @@ app.UseSwaggerUI();
 CreateNewAccount.RegisterHttpEndpoint(app);
 RemoveAccount.RegisterHttpEndpoint(app);
 GetAccounts.RegisterHttpEndpoint(app);
+GetAccountsByOwnerId.RegisterHttpEndpoint(app);
 ChangeAccountInterestRate.RegisterHttpEndpoint(app);
 TransferMoney.RegisterHttpEndpoint(app);
 RegisterExternalTransaction.RegisterHttpEndpoint(app);
