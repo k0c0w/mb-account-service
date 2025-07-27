@@ -7,10 +7,11 @@ public class DomainException : Exception
     public enum DomainExceptionType
     {
         ValidationError = 1,
-        SystemError = 2
+        ExistenceError,
+        SystemError,
     }
 
-    protected DomainException(string message, DomainExceptionType type, Exception innerException)
+    private DomainException(string message, DomainExceptionType type, Exception innerException)
     :base(message, innerException)
     {
         Type = type;
@@ -24,5 +25,10 @@ public class DomainException : Exception
     public static DomainException CreateSystemException(string message, Exception innerException)
     {
         return new DomainException(message, DomainExceptionType.SystemError, innerException);
+    }
+    
+    public static DomainException CreateExistenceException(string message)
+    {
+        return new DomainException(message, DomainExceptionType.ExistenceError, new InvalidOperationException());
     }
 }

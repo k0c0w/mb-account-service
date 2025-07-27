@@ -57,5 +57,23 @@ public class Account
 
         _transactions = [];
     }
-    
+
+    public void Close()
+    {
+        if (ClosingTimeUtc is not null)
+        {
+            throw DomainException.CreateValidationException(
+                "Account is already closed.", 
+                new InvalidOperationException($"An attempt to close account {Id} which is already closed at {ClosingTimeUtc}."));
+        }
+
+        if (Balance.Amount != decimal.Zero)
+        {
+            throw DomainException.CreateValidationException(
+                "All money must be withdrawn before the account is closed.",
+                new InvalidOperationException($"An attempt to close non empty account {Id}."));
+        }
+        
+        ClosingTimeUtc = DateTimeOffset.UtcNow;
+    }
 }
