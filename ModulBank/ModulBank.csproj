@@ -61,6 +61,15 @@
       <Compile Update="Features\ChangeAccountInterestRateCommandHandler.cs">
         <DependentUpon>ChangeAccountInterestRate.cs</DependentUpon>
       </Compile>
+      <Compile Update="Features\TransferMoneyCommand.cs">
+        <DependentUpon>TransferMoney.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\TransferMoneyCommandValidator.cs">
+        <DependentUpon>TransferMoney.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\TransferMoneyCommandHandler.cs">
+        <DependentUpon>TransferMoney.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

@@ -60,7 +60,7 @@ public class Account
 
     public void Close()
     {
-        if (ClosingTimeUtc is not null)
+        if (IsClosed())
         {
             throw DomainException.CreateValidationException(
                 "Account is already closed.", 
@@ -87,4 +87,64 @@ public class Account
 
         InterestRate = interestRate;
     }
+
+    public void SendMoney(Account recipient, Currency money)
+    {
+        if (IsClosed())
+        {
+            throw DomainException.CreateValidationException(
+                "Sender account is already closed.", 
+                new InvalidOperationException($"An attempt to withdraw money from account {Id}, but {Id} is already closed at {ClosingTimeUtc}."));
+        }
+        
+        if (recipient.IsClosed())
+        {
+            throw DomainException.CreateValidationException(
+                "Recipient is already closed.", 
+                new InvalidOperationException($"An attempt to debit account {recipient.Id} which is already closed at {ClosingTimeUtc}."));
+        }
+
+        if (recipient.Balance.Code != Balance.Code)
+        {
+            var invOpMessage = $"An attempt to send money from account {Id} to {recipient.Id}, but currencies did not match: {Balance.Code} != {recipient.Balance.Code}.";
+            throw DomainException.CreateValidationException("Can not send money to account which has another currency.", 
+                new InvalidOperationException(invOpMessage));
+        }
+        
+        if (Balance.Amount - money.Amount < decimal.Zero)
+        {
+            var invOpMessage =  $"An attempt to credit money from account {Id} by {money.Amount}, but account has only {Balance.Amount}.";
+            throw DomainException.CreateValidationException("Insufficient account balance.", 
+                new InvalidOperationException(invOpMessage));
+        }
+
+        CreditMoney(money, recipient.Id);
+        recipient.DebitMoney(money, Id);
+    }
+
+    private void CreditMoney(Currency money, Guid? counterpartyAccountId = default)
+    {
+        var transaction = new Transaction(Id, 
+            TransactionType.Credit, 
+            money, 
+            "Withdraw money operation", 
+            counterpartyAccountId);
+        _transactions.Add(transaction);
+
+        Balance = new Currency(Balance.Code, Balance.Amount - money.Amount);
+    }
+    
+    private void DebitMoney(Currency money, Guid? counterpartyAccountId = default)
+    {
+        var transaction = new Transaction(Id, 
+            TransactionType.Debit, 
+            money, 
+            "Deposit money operation", 
+            counterpartyAccountId);
+        _transactions.Add(transaction);
+
+        Balance = new Currency(Balance.Code, Balance.Amount + money.Amount);
+    }
+
+    public bool IsClosed() => ClosingTimeUtc != null;
 }
