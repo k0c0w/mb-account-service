@@ -1,10 +1,21 @@
+using System.Net;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
 namespace ModulBank.Features;
 
-public class CreateNewAccount
+public sealed class CreateNewAccount
 {
-    public void RegisterHttpEndpoint(IEndpointRouteBuilder b)
+    public static void RegisterHttpEndpoint(IEndpointRouteBuilder b)
     {
-        b.MapPost("/accounts", () => throw new NotImplementedException())
+        b.MapPost("/accounts", async (HttpContext ctx, 
+                [FromBody] CreateNewAccountCommand request, 
+                [FromServices] IMediator mediator) =>
+            {
+                var result = await mediator.Send(request);
+                ctx.Response.StatusCode = (int)HttpStatusCode.Created;
+                return result;
+            })
             .WithDescription("Creates new account for specific user.")
             .Produces(201)
             .Produces(400)

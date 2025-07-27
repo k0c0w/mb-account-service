@@ -1,6 +1,6 @@
-namespace ModulBank.Features.Accounts;
+using MediatR;
 
-public record CreateNewAccountCommand
-{
-    
-}
+namespace ModulBank.Features;
+
+public record CreateNewAccountCommand(Guid OwnerId, string CurrencyCode, string AccountType, decimal? InterestRate)
+    : IRequest<CreatedAccountDto>;

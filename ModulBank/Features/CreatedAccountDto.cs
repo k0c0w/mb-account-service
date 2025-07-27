@@ -5,7 +5,7 @@ public record CreatedAccountDto
     public required Guid Id { get; init; }
         
     public required Guid OwnerId { get; init; } 
-        
+    
     public required string Type { get; init; }
         
     public required decimal Balance { get; init; }

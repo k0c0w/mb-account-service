@@ -1,0 +1,6 @@
+﻿services:
+  modulbank:
+    image: modulbank
+    build:
+      context: .
+      dockerfile: ModulBank/Dockerfile
