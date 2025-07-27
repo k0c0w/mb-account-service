@@ -52,6 +52,15 @@
       <Compile Update="Features\GetAccountsQueryHandler.cs">
         <DependentUpon>GetAccounts.cs</DependentUpon>
       </Compile>
+      <Compile Update="Features\ChangeAccountInterestRateCommand.cs">
+        <DependentUpon>ChangeAccountInterestRate.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\ChangeAccountInterestRateCommandValidator.cs">
+        <DependentUpon>ChangeAccountInterestRate.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Features\ChangeAccountInterestRateCommandHandler.cs">
+        <DependentUpon>ChangeAccountInterestRate.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

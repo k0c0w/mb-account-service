@@ -25,5 +25,6 @@ app.UseSwaggerUI();
 CreateNewAccount.RegisterHttpEndpoint(app);
 RemoveAccount.RegisterHttpEndpoint(app);
 GetAccounts.RegisterHttpEndpoint(app);
+ChangeAccountInterestRate.RegisterHttpEndpoint(app);
 
 app.Run();

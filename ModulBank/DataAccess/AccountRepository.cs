@@ -14,6 +14,13 @@ public class AccountRepository : IAccountRepository
         return Task.CompletedTask;
     }
 
+    public Task UpdateAsync(Account account, CancellationToken ct = default)
+    {
+        Accounts.AddOrUpdate(account.Id, (_) => account, (_, _) => account);
+        
+        return Task.CompletedTask;
+    }
+
     public Task RemoveAsync(Account account, CancellationToken ct = default)
     {
         Accounts.Remove(account.Id, out var _);

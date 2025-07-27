@@ -76,4 +76,15 @@ public class Account
         
         ClosingTimeUtc = DateTimeOffset.UtcNow;
     }
+
+    public void ChangeInterestRate(AccountInterestRate interestRate)
+    {
+        if (Type == AccountType.Checking)
+        {
+            throw DomainException.CreateValidationException("Account does not support interest rate.",
+                new InvalidOperationException($"An attempt to set interest rate to account {Id} which has type {Type}."));
+        }
+
+        InterestRate = interestRate;
+    }
 }

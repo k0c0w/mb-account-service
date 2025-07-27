@@ -3,6 +3,8 @@ namespace ModulBank.Features.Domain;
 public interface IAccountRepository
 {
     Task AddAsync(Account account, CancellationToken ct = default);
+    
+    Task UpdateAsync(Account account, CancellationToken ct = default);
 
     Task RemoveAsync(Account account, CancellationToken ct = default);
     
