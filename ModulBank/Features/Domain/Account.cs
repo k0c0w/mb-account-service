@@ -113,8 +113,8 @@ public class Account
 
         ThrowIfInsufficientBalance(money);
 
-        CreditMoney(money, recipient.Id);
-        recipient.DebitMoney(money, Id);
+        CreditMoney(money, "Withdraw money operation", recipient.Id);
+        recipient.DebitMoney(money, "Deposit money operation", Id);
     }
 
     public void ApplyIncomingTransaction(TransactionType transactionType, Currency money)
@@ -126,19 +126,15 @@ public class Account
                 new InvalidOperationException(invOpMessage));
         }
 
-        decimal newBalance;
         if (transactionType == TransactionType.Credit)
         {
             ThrowIfInsufficientBalance(money);
-            newBalance = Balance.Amount - money.Amount;
+            CreditMoney(money, "External payment operation");
         }
         else
         {
-            newBalance = Balance.Amount + money.Amount;
+            DebitMoney(money, "External payment operation");
         }
-        Balance = new Currency(Balance.Code, newBalance);
-
-        _transactions.Add(new Transaction(Id, transactionType, money, "External transaction."));
     }
 
     private void ThrowIfInsufficientBalance(Currency money)
@@ -151,24 +147,24 @@ public class Account
         }
     }
     
-    private void CreditMoney(Currency money, Guid? counterpartyAccountId = default)
+    private void CreditMoney(Currency money, string description, Guid? counterpartyAccountId = default)
     {
         var transaction = new Transaction(Id, 
             TransactionType.Credit, 
             money, 
-            "Withdraw money operation", 
+            description,
             counterpartyAccountId);
         _transactions.Add(transaction);
 
         Balance = new Currency(Balance.Code, Balance.Amount - money.Amount);
     }
     
-    private void DebitMoney(Currency money, Guid? counterpartyAccountId = default)
+    private void DebitMoney(Currency money, string description, Guid? counterpartyAccountId = default)
     {
         var transaction = new Transaction(Id, 
             TransactionType.Debit, 
             money, 
-            "Deposit money operation", 
+            description,
             counterpartyAccountId);
         _transactions.Add(transaction);
 
