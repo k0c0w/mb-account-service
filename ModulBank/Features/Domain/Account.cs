@@ -17,6 +17,8 @@ public class Account
     public DateTimeOffset CreationTimeUtc { get; protected set; }
     
     public DateTimeOffset? ClosingTimeUtc { get; protected set; }
+    
+    public bool IsClosed { get; protected set; }
 
     public IReadOnlyList<Transaction> TransactionHistory => _transactions;
 
@@ -62,7 +64,7 @@ public class Account
 
     public void Close()
     {
-        if (IsClosed())
+        if (IsClosed)
         {
             throw DomainException.CreateValidationException(
                 "Account is already closed.", 
@@ -77,6 +79,8 @@ public class Account
         }
         
         ClosingTimeUtc = DateTimeOffset.UtcNow;
+
+        IsClosed = true;
     }
 
     public void ChangeInterestRate(AccountInterestRate interestRate)
@@ -92,14 +96,14 @@ public class Account
 
     public void SendMoney(Account recipient, Currency money)
     {
-        if (IsClosed())
+        if (IsClosed)
         {
             throw DomainException.CreateValidationException(
                 "Sender account is already closed.", 
                 new InvalidOperationException($"An attempt to withdraw money from account {Id}, but {Id} is already closed at {ClosingTimeUtc}."));
         }
         
-        if (recipient.IsClosed())
+        if (recipient.IsClosed)
         {
             throw DomainException.CreateValidationException(
                 "Recipient is already closed.", 
@@ -185,6 +189,4 @@ public class Account
 
         Balance = new Currency(Balance.Code, Balance.Amount + money.Amount);
     }
-
-    private bool IsClosed() => ClosingTimeUtc != null;
 }
