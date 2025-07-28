@@ -31,7 +31,7 @@ public class Account
     {
         Id = Guid.CreateVersion7();
 
-        if (OwnerId == Guid.Empty)
+        if (ownerId == Guid.Empty)
         {
             throw DomainException.CreateValidationException($"{nameof(Account)} {nameof(OwnerId)} is invalid.", 
                 new ArgumentException("Guid is empty.", nameof(ownerId)));
