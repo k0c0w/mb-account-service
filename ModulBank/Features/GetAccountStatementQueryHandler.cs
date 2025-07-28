@@ -36,6 +36,7 @@ public sealed class GetAccountStatementQueryHandler(IAccountRepository accountRe
             statementTransactions[i] = new()
             {
                 AccountBalanceAfterTransaction = balanceAtMoment,
+                Amount = transaction.Amount.Amount,
                 TransactionTime = transaction.TimeUtc.DateTime,
                 TransactionDescription = transaction.Description,
                 TransactionType = transaction.Type.ToString(),

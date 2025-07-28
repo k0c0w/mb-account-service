@@ -22,6 +22,8 @@ public sealed record AccountStatementDto
         
         public required string TransactionType { get; init; }
         
+        public required decimal Amount { get; init; }
+        
         public required decimal AccountBalanceAfterTransaction { get; init; }
         
         public required string TransactionDescription { get; init; }
