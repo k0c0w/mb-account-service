@@ -34,7 +34,7 @@ public class Transaction
 
         Type = type;
 
-        if (AccountId == Guid.Empty)
+        if (accountId == Guid.Empty)
         {
             throw DomainException.CreateValidationException($"{nameof(Transaction)} {nameof(AccountId)} is invalid.",
                 new ArgumentException("Guid is empty.", nameof(accountId)));

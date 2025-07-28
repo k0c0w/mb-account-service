@@ -29,7 +29,7 @@ public class RegisterExternalTransactionCommandHandler(
         }
 
         var currencyCode = new CurrencyCode(request.CurrencyCode);
-        if (await CurrencyVerificator.IsSupportedAsync(currencyCode, ct))
+        if (!await CurrencyVerificator.IsSupportedAsync(currencyCode, ct))
         {
             throw DomainException.CreateValidationException("Unsupported currency.", 
                 new ArgumentException($"Unsupported currency met: {request.CurrencyCode}."));
