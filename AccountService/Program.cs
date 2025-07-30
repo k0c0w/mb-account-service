@@ -13,6 +13,7 @@ var currentAssembly = typeof(Program).Assembly;
 services.AddOpenApi();
 services.AddSwaggerGen();
 
+services.AddControllers();
 services.AddLogging(cfg => cfg.AddConsole());
 services.AddMemoryCache();
 services.AddAllFromAssembly(currentAssembly);
@@ -41,13 +42,6 @@ app.UseMiddleware<GlobalExceptionFilter>();
 app.UseMiddleware<ValidationExceptionFilter>();
 app.UseMiddleware<DomainExceptionFilter>();
 
-CreateNewAccount.RegisterHttpEndpoint(app);
-RemoveAccount.RegisterHttpEndpoint(app);
-GetAccounts.RegisterHttpEndpoint(app);
-GetAccountsByOwnerId.RegisterHttpEndpoint(app);
-ChangeAccountInterestRate.RegisterHttpEndpoint(app);
-TransferMoney.RegisterHttpEndpoint(app);
-RegisterExternalTransaction.RegisterHttpEndpoint(app);
-GetAccountStatement.RegisterHttpEndpoint(app);
+app.MapControllers();
 
 app.Run();

@@ -8,7 +8,7 @@ public class ChangeAccountInterestRate
 {
     public static void RegisterHttpEndpoint(IEndpointRouteBuilder b)
     {
-        b.MapPatch("/accounts/{id:guid}/interest-rate", async (HttpContext ctx, 
+        b.MapPatch("/accounts/", async (HttpContext ctx, 
                 [FromRoute] Guid id, 
                 [FromBody] decimal value,
                 [FromServices] IMediator mediator) =>
