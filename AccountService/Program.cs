@@ -1,7 +1,6 @@
 using FluentValidation;
 using AccountService.Persistance.DataAccess;
 using AccountService.Domain;
-using AccountService.Features;
 using AccountService.Persistance.Services;
 using AccountService.Middlewares;
 using AccountService.PipelineBehaviours;

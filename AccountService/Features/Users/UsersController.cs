@@ -11,7 +11,7 @@ public class UsersController : ControllerBase
         [FromRoute] Guid id,
         [FromServices] IMediator mediator)
     {
-        var accounts = await mediator.Send(new GetAccountsQuery());
+        var accounts = await mediator.Send(new GetAccountsByOwnerIdQuery(id));
 
         return Results.Json(accounts);
     }
