@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace AccountService.Domain;
 
 public record CurrencyCode
@@ -7,14 +9,15 @@ public record CurrencyCode
     /// </summary>
     public string Value { get; }
 
-    public CurrencyCode(string iso4217CurrencyCode)
+    public CurrencyCode(string currencyCode)
     {
-        ArgumentException.ThrowIfNullOrEmpty(iso4217CurrencyCode, nameof(iso4217CurrencyCode));
-        if (iso4217CurrencyCode.Length != 3)
+        ArgumentException.ThrowIfNullOrEmpty(currencyCode, nameof(currencyCode));
+        var value = currencyCode.ToUpper();
+        if (currencyCode.Length != 3 || !Regex.IsMatch(value, @"[a-z][a-z][a-z]", RegexOptions.Compiled))
         {
-            throw new ArgumentException("ISO 4217 codes are 3 length strings.");
+            throw new ArgumentException("CurrencyCode must be in ISO 4217 format.");
         }
-        Value = iso4217CurrencyCode;
+        Value = value;
     }
 
     public override string ToString() => Value;
