@@ -1,4 +1,4 @@
-using AccountService.Features.Domain;
+using AccountService.Domain;
 using AccountService.Validation;
 using FluentValidation;
 

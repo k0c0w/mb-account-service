@@ -1,6 +1,6 @@
 using System.Net;
 using System.Text.Json;
-using AccountService.Features.Domain;
+using AccountService.Domain;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountService.Middlewares;

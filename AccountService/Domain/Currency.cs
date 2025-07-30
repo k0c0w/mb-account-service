@@ -1,4 +1,4 @@
-namespace AccountService.Features.Domain;
+namespace AccountService.Domain;
 
 public readonly struct Currency
 {

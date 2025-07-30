@@ -1,4 +1,4 @@
-using AccountService.Features.Domain;
+using AccountService.Domain;
 using MediatR;
 
 namespace AccountService.Features;

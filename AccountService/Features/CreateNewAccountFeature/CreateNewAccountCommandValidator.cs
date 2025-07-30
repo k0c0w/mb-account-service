@@ -1,6 +1,5 @@
 using AccountService.Validation;
 using FluentValidation;
-using AccountService.Features.Domain;
 
 namespace AccountService.Features;
 

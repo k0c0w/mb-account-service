@@ -1,6 +1,6 @@
-using AccountService.Features.Domain;
+using AccountService.Domain;
 
-namespace AccountService.Features.Services;
+namespace AccountService.Persistance.Services;
 
 public class CurrencyVerificator : ICurrencyVerificator
 {

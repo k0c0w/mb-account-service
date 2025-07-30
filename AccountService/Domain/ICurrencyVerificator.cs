@@ -1,6 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
-
-namespace AccountService.Features.Domain;
+namespace AccountService.Domain;
 
 public interface ICurrencyVerificator
 {

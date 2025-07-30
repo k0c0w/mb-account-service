@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace AccountService.Features.Domain;
+namespace AccountService.Domain;
 
 [DataContract]
 public enum AccountType : ushort
