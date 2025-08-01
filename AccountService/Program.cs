@@ -1,4 +1,5 @@
 using System.Reflection;
+using AccountService.Authentication;
 using AccountService.Domain;
 using AccountService.Middlewares;
 using AccountService.Persistence.DataAccess;
@@ -23,6 +24,7 @@ services.AddSingleton<IUserVerificator, UserVerificator>();
 services.AddSingleton<ICurrencyVerificator, CurrencyVerificator>();
 services.AddSingleton<IAccountRepository, AccountRepository>();
 services.AddCors();
+services.AddJwt(builder.Configuration);
 
 services.AddMediatR(cfg =>
 {
@@ -35,21 +37,25 @@ services.AddFluentValidation(currentAssembly);
 
 var app = builder.Build();
 
-app.UseCors(opt =>
-{
-    opt.AllowCredentials();
-    opt.AllowAnyOrigin();
-});
-
 app.MapOpenApi();
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseCors(opt =>
+{
+    opt.AllowAnyOrigin();
+});
+
+app.Use401ResponseFormatter();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseMiddleware<RequestLogMiddleware>();
 app.UseMiddleware<GlobalExceptionFilter>();
 app.UseMiddleware<ValidationExceptionFilter>();
 app.UseMiddleware<DomainExceptionFilter>();
 
-app.MapControllers();
+app.MapControllers()
+    .RequireAuthorization();
 
 app.Run();
