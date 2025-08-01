@@ -38,7 +38,7 @@ public sealed class CreateNewAccountHandler(
                 new InvalidOperationException($"User with id {request.OwnerId} does not exist in system."));
         }
 
-        var interestRate = request.InterestRate.HasValue
+        var interestRate = request.InterestRate.HasValue && request.InterestRate.Value != 0
             ? new AccountInterestRate(request.InterestRate.Value)
             : default;
         
