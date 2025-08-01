@@ -27,7 +27,7 @@ public class ValidationExceptionFilter : IMiddleware
                 })
                 .ToArray();
 
-            await ctx.Response.WriteAsJsonAsync(MbResultWithError<PropertyValidationError>.Fail(errors));
+            await ctx.Response.WriteAsJsonAsync(MbResultWithError<PropertyValidationError[]>.Fail(errors));
         }
     }
 }

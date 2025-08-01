@@ -27,7 +27,7 @@ public class DomainExceptionFilter : IMiddleware
         }
     }
 
-    private static Task WriteErrorsAsJsonAsync<TError>(HttpContext ctx, params TError[] errors)
+    private static Task WriteErrorsAsJsonAsync<TError>(HttpContext ctx, TError errors)
     {
         ctx.Response.ContentType = "application/json";
         var error = MbResultWithError<TError>.Fail(errors);

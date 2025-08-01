@@ -2,7 +2,7 @@ namespace AccountService.Features;
 
 public static class MbResultWithError<TError>
 {
-    public static MbResult<TError> Fail(params TError[] err)
+    public static MbResult<TError> Fail(TError err)
     {
         return new MbResult<TError>(err);
     }
