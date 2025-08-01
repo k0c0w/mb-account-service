@@ -1,8 +1,11 @@
 using AccountService.Domain;
+using JetBrains.Annotations;
 using MediatR;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Transactions.RegisterExternalTransactionFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public class RegisterExternalTransactionCommandHandler(
     IAccountRepository accountRepository,
     ICurrencyVerificator currencyVerificator
@@ -51,7 +54,7 @@ public class RegisterExternalTransactionCommandHandler(
 
         if (accounts.Count == 0)
         {
-            throw DomainException.CreateValidationException($"An account is not found.",
+            throw DomainException.CreateValidationException("An account is not found.",
                 new InvalidOperationException("An attempt to register transaction for non exiting account.", 
                     new ArgumentException($"Invalid argument value: {accountId}.")));
         }

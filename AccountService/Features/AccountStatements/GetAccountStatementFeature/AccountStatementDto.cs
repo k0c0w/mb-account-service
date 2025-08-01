@@ -1,69 +1,55 @@
-using AccountService.Domain;
+using JetBrains.Annotations;
 
-namespace AccountService.Features;
+namespace AccountService.Features.AccountStatements.GetAccountStatementFeature;
 
 public sealed record AccountStatementDto
 {
     /// <summary>
     /// Account Identity
     /// </summary>
+    // Resharper disable once. Property is being used by serialization.
+    [UsedImplicitly]
     public required Guid AccountId { get; init; }
     
     /// <summary>
     /// Account owner identity
     /// </summary>
+    // Resharper disable once. Property is being used by serialization.
+    [UsedImplicitly]
     public required Guid OwnerId { get; init; }
     
     /// <summary>
     /// Account currency
     /// </summary>
+    // Resharper disable once. Property is being used by serialization.
+    [UsedImplicitly]
     public required string CurrencyCode { get; init; }
     
     /// <summary>
     /// Start of this statement period
     /// </summary>
+    // Resharper disable once. Property is being used by serialization.
+    [UsedImplicitly]
     public required DateTime StatementPeriodStart { get; init; }
     
     /// <summary>
     /// End of this statement period
     /// </summary>
+    // Resharper disable once. Property is being used by serialization.
+    [UsedImplicitly]
     public required DateTime StatementPeriodEnd { get; init; }
     
     /// <summary>
     /// Account initial balance at <see cref="StatementPeriodStart"/>
     /// </summary>
+    // Resharper disable once. Property is being used by serialization.
+    [UsedImplicitly]
     public required decimal AccountBalanceAtStatementPeriodStart { get; init; }
     
     /// <summary>
     /// Transactions which were applied during statement period
     /// </summary>
-    public required IEnumerable<AccountTransactionInStatementDto> Transactions { get; init; }
-
-    public sealed record AccountTransactionInStatementDto
-    {
-        /// <summary>
-        /// Transaction UTC Time
-        /// </summary>
-        public required DateTime TransactionTime { get; init; }
-        
-        /// <summary>
-        /// Type of this transaction
-        /// </summary>
-        public required TransactionType TransactionType { get; init; }
-        
-        /// <summary>
-        /// Amount of this transaction
-        /// </summary>
-        public required decimal Amount { get; init; }
-        
-        /// <summary>
-        /// Account balance after transaction has been applied
-        /// </summary>
-        public required decimal AccountBalanceAfterTransaction { get; init; }
-        
-        /// <summary>
-        /// Description of this transaction
-        /// </summary>
-        public required string TransactionDescription { get; init; }
-    }
+    // Resharper disable once. Property is being used by serialization.
+    [UsedImplicitly]
+    public required IEnumerable<TransactionInStatementDto> Transactions { get; init; }
 }

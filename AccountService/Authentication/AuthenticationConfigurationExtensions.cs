@@ -1,11 +1,12 @@
 using AccountService.Features;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AccountService.Authentication;
 
 public static class AuthenticationConfigurationExtensions
 {
-    public static IApplicationBuilder Use401ResponseFormatter(this IApplicationBuilder app)
+    public static void Use401ResponseFormatter(this IApplicationBuilder app)
     {
         const string message = "Unauthorized access. Please provide a valid token.";
         app.Use(async (context, next) =>
@@ -18,8 +19,6 @@ public static class AuthenticationConfigurationExtensions
                 await context.Response.WriteAsJsonAsync(error);
             }
         });
-        
-        return app;
     }
     
     public static void AddJwt(this IServiceCollection services, IConfiguration configuration)
@@ -31,9 +30,9 @@ public static class AuthenticationConfigurationExtensions
                     .GetValue<bool>("RequireHttpsMetadata");
                 options.Audience = GetByPath(configuration, "Authentication:Audience");
                 options.MetadataAddress = GetByPath(configuration, "Authentication:MetadataAddress");
-                options.TokenValidationParameters = new()
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidIssuer = GetByPath(configuration, "Authentication:Issuer"),
+                    ValidIssuer = GetByPath(configuration, "Authentication:Issuer")
                 };
             });
         services.AddAuthorization();

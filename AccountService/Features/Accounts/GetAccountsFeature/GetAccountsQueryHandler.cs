@@ -1,8 +1,11 @@
 using AccountService.Domain;
+using JetBrains.Annotations;
 using MediatR;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Accounts.GetAccountsFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public sealed class GetAccountsQueryHandler(IAccountRepository accountRepository)
     : IRequestHandler<GetAccountsQuery, IEnumerable<AccountDto>>
 {
@@ -29,7 +32,7 @@ public sealed class GetAccountsQueryHandler(IAccountRepository accountRepository
             Type = account.Type,
             InterestRate = account.InterestRate?.Value ?? default(decimal?),
             CreationTimeUtc = account.CreationTimeUtc,
-            ClosingTimeUtc = account.ClosingTimeUtc,
+            ClosingTimeUtc = account.ClosingTimeUtc
         };
     }
 }

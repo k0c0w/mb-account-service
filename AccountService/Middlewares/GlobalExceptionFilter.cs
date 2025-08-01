@@ -1,7 +1,5 @@
 using System.Net;
-using System.Text.Json;
 using AccountService.Features;
-using Microsoft.AspNetCore.Mvc;
 
 namespace AccountService.Middlewares;
 

@@ -8,13 +8,13 @@ public class Account
     
     public Guid OwnerId { get; } 
     
-    public AccountType Type { get; protected set; }
+    public AccountType Type { get; }
     
     public Currency Balance { get; private set; }
     
     public AccountInterestRate? InterestRate { get; private set; }
     
-    public DateTimeOffset CreationTimeUtc { get; protected set; }
+    public DateTimeOffset CreationTimeUtc { get; }
     
     public DateTimeOffset? ClosingTimeUtc { get; private set; }
 
@@ -158,12 +158,14 @@ public class Account
     
     private void ThrowIfInsufficientBalance(Currency money)
     {
-        if (Balance.Amount - money.Amount < decimal.Zero)
+        if (Balance.Amount - money.Amount >= decimal.Zero)
         {
-            var invOpMessage =  $"An attempt to credit money from account {Id} by {money.Amount}, but account has only {Balance.Amount}.";
-            throw DomainException.CreateValidationException("Insufficient account balance.", 
-                new InvalidOperationException(invOpMessage));
+            return;
         }
+        
+        var invOpMessage =  $"An attempt to credit money from account {Id} by {money.Amount}, but account has only {Balance.Amount}.";
+        throw DomainException.CreateValidationException("Insufficient account balance.", 
+            new InvalidOperationException(invOpMessage));
     }
     
     private void CreditMoney(Currency money, string description, Guid? counterpartyAccountId = default)

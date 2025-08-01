@@ -1,9 +1,12 @@
 using AccountService.Domain;
 using AccountService.Validation;
 using FluentValidation;
+using JetBrains.Annotations;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Accounts.CreateNewAccountFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public class CreateNewAccountCommandValidator : AbstractValidator<CreateNewAccountCommand>
 {
     public CreateNewAccountCommandValidator()

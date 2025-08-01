@@ -20,5 +20,5 @@ public enum TransactionType: ushort
     /// Credit transaction, account will send money
     /// </summary>
     [EnumMember(Value = "Credit")]
-    Credit = 2,
+    Credit = 2
 }

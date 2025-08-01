@@ -1,8 +1,11 @@
 using AccountService.Domain;
+using JetBrains.Annotations;
 using MediatR;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Accounts.RemoveAccountFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public class RemoveAccountCommandHandler(IAccountRepository accountRepository) : IRequestHandler<RemoveAccountCommand>
 {
     private IAccountRepository AccountRepository => accountRepository;

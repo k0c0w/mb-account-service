@@ -1,3 +1,4 @@
+using AccountService.Features.Transactions.RegisterExternalTransactionFeature;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

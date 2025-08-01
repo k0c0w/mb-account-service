@@ -1,9 +1,12 @@
 using AccountService.Features;
+using JetBrains.Annotations;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace AccountService.Swagger;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 internal sealed class AddDefaultResponsesFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
@@ -12,7 +15,7 @@ internal sealed class AddDefaultResponsesFilter : IOperationFilter
 
     }
 
-    private void Add500StatusCodeSchema(OpenApiOperation operation, OperationFilterContext context)
+    private static void Add500StatusCodeSchema(OpenApiOperation operation, OperationFilterContext context)
     {
         const string statusCode = "500";
         const string description = "Internal Server Error";

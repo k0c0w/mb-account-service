@@ -1,6 +1,5 @@
 using System.Net;
 using AccountService.Features;
-using AccountService.Validation;
 using FluentValidation;
 
 namespace AccountService.Middlewares;

@@ -6,7 +6,7 @@ namespace AccountService.Swagger;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
+    public static void AddSwagger(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
                         Scopes = new Dictionary<string, string>
                         {
                             {"openid", "openid"},
-                            {"profile", "profile"},
+                            {"profile", "profile"}
                         }
                     }
                 }
@@ -50,7 +50,5 @@ public static class ServiceCollectionExtensions
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename), includeControllerXmlComments: true);
             options.OperationFilter<AddDefaultResponsesFilter>();
         });
-
-        return services;
     }
 }

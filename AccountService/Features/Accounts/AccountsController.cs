@@ -1,3 +1,7 @@
+using AccountService.Features.Accounts.ChangeAccountInterestRateFeature;
+using AccountService.Features.Accounts.CreateNewAccountFeature;
+using AccountService.Features.Accounts.GetAccountsFeature;
+using AccountService.Features.Accounts.RemoveAccountFeature;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,8 +1,11 @@
 using AccountService.Domain;
+using JetBrains.Annotations;
 using MediatR;
 
-namespace AccountService.Features;
+namespace AccountService.Features.AccountStatements.GetAccountStatementFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public sealed class GetAccountStatementQueryHandler(IAccountRepository accountRepository)
     : IRequestHandler<GetAccountStatementQuery, AccountStatementDto>
 {
@@ -23,7 +26,7 @@ public sealed class GetAccountStatementQueryHandler(IAccountRepository accountRe
             .TakeWhile(t => t.TimeUtc <= actualStatementEndTime)
             .ToArray();
         
-        var statementTransactions = new AccountStatementDto.AccountTransactionInStatementDto[transactions.Length];
+        var statementTransactions = new TransactionInStatementDto[transactions.Length];
         
         var balanceAtStart = account.GetBalanceAt(request.PeriodStartUtc);
         var balanceAtMoment = balanceAtStart;
@@ -33,13 +36,13 @@ public sealed class GetAccountStatementQueryHandler(IAccountRepository accountRe
             var transactionAmount = transaction.Amount.Amount;
             balanceAtMoment += transaction.Type == TransactionType.Debit ? transactionAmount : -transactionAmount;
 
-            statementTransactions[i] = new()
+            statementTransactions[i] = new TransactionInStatementDto
             {
                 AccountBalanceAfterTransaction = balanceAtMoment,
                 Amount = transaction.Amount.Amount,
                 TransactionTime = transaction.TimeUtc.DateTime,
                 TransactionDescription = transaction.Description,
-                TransactionType = transaction.Type,
+                TransactionType = transaction.Type
             };
         }
 

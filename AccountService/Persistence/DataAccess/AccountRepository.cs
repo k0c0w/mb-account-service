@@ -9,6 +9,8 @@ public class AccountRepository : IAccountRepository
     
     public Task AddAsync(Account account, CancellationToken ct = default)
     {
+        ct.ThrowIfCancellationRequested();
+        
         Accounts.TryAdd(account.Id, account);
         
         return Task.CompletedTask;
@@ -16,42 +18,60 @@ public class AccountRepository : IAccountRepository
 
     public Task UpdateAsync(Account account, CancellationToken ct = default)
     {
-        Accounts.AddOrUpdate(account.Id, (_) => account, (_, _) => account);
+        ct.ThrowIfCancellationRequested();
+        
+        Accounts.AddOrUpdate(account.Id, _ => account, (_, _) => account);
         
         return Task.CompletedTask;
     }
 
     public Task RemoveAsync(Account account, CancellationToken ct = default)
     {
-        Accounts.Remove(account.Id, out var _);
+        ct.ThrowIfCancellationRequested();
+        
+        Accounts.Remove(account.Id, out _);
         return Task.CompletedTask;
     }
 
     public Task<IReadOnlyList<Account>> FindAsync(IAccountRepository.FindAccountsFilter filter, CancellationToken ct = default)
     {
+        ct.ThrowIfCancellationRequested();
+        
         IReadOnlyList<Account> res = [];
-        if (filter is IAccountRepository.FindAccountsFilter.ByIdFilter byIdFilter)
+        switch (filter)
         {
-            if (Accounts.TryGetValue(byIdFilter.Id, out var value))
+            case IAccountRepository.FindAccountsFilter.ByIdFilter byIdFilter:
             {
-                res = [value];
-            }
+                if (Accounts.TryGetValue(byIdFilter.Id, out var value))
+                {
+                    res = [value];
+                }
             
-            return Task.FromResult(res);
+                return Task.FromResult(res);
+            }
+            case IAccountRepository.FindAccountsFilter.EmptyFilter:
+            {
+                res  = Accounts.Values.ToArray();
+
+                return Task.FromResult(res);
+            }
+
+            case IAccountRepository.FindAccountsFilter.ByOwnerIdFilter byOwnerIdFilter:
+                res  = Accounts.Values
+                    .ToArray()
+                    .Where(x => x.OwnerId == byOwnerIdFilter.OwnerId)
+                    .ToArray();
+
+                return Task.FromResult(res);
+            default:
+                throw new NotImplementedException($"Unknown filter {nameof(filter)}.");
         }
-
-        if (filter is IAccountRepository.FindAccountsFilter.EmptyFilter)
-        {
-            res  = Accounts.Values.ToArray();
-
-            return Task.FromResult(res);
-        }
-
-        throw new NotImplementedException($"Unknown filter {nameof(filter)}.");
     }
 
     public async Task<Account> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
+        ct.ThrowIfCancellationRequested();
+        
         var idFilter = new IAccountRepository.FindAccountsFilter.ByIdFilter(id);
 
         var accounts = await FindAsync(idFilter, ct);

@@ -1,5 +1,6 @@
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace AccountService.Domain;
 
@@ -8,6 +9,7 @@ namespace AccountService.Domain;
 /// </summary>
 [DataContract]
 [JsonConverter(typeof(JsonStringEnumConverter))]
+
 public enum AccountType : ushort
 {
     /// <summary>
@@ -19,10 +21,14 @@ public enum AccountType : ushort
     /// Account allows to accumulate money
     /// </summary>
     [EnumMember(Value = "Deposit")]
+    // Resharper disable once. Value is used by requests and domain.
+    [UsedImplicitly]
     Deposit = 2,
     /// <summary>
     /// Account registers credit of money, which must be returned later
     /// </summary>
     [EnumMember(Value = "Credit")]
-    Credit = 3,
+    // Resharper disable once. Value is used by requests and domain.
+    [UsedImplicitly]
+    Credit = 3
 }

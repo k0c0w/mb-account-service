@@ -1,8 +1,11 @@
 using AccountService.Validation;
 using FluentValidation;
+using JetBrains.Annotations;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Transactions.RegisterExternalTransactionFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public class RegisterExternalTransactionCommandValidator : AbstractValidator<RegisterExternalTransactionCommand>
 {
     public RegisterExternalTransactionCommandValidator()
