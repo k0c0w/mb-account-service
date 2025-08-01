@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using AccountService.Domain;
 
-namespace AccountService.Persistance.DataAccess;
+namespace AccountService.Persistence.DataAccess;
 
 public class AccountRepository : IAccountRepository
 {

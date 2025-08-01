@@ -1,8 +1,8 @@
 using System.Reflection;
-using AccountService.Persistance.DataAccess;
 using AccountService.Domain;
-using AccountService.Persistance.Services;
 using AccountService.Middlewares;
+using AccountService.Persistence.DataAccess;
+using AccountService.Persistence.Services;
 using AccountService.PipelineBehaviours;
 using AccountService.Swagger;
 using AccountService.Validation;
