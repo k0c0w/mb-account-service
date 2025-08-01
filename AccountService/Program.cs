@@ -1,9 +1,9 @@
-using FluentValidation;
 using AccountService.Persistance.DataAccess;
 using AccountService.Domain;
 using AccountService.Persistance.Services;
 using AccountService.Middlewares;
 using AccountService.PipelineBehaviours;
+using AccountService.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -28,7 +28,7 @@ services.AddMediatR(cfg =>
     cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
 });
 
-services.AddValidatorsFromAssembly(currentAssembly);
+services.AddFluentValidation(currentAssembly);
 
 var app = builder.Build();
 
