@@ -11,6 +11,6 @@ public class TransfersController : ControllerBase
     {
         await mediator.Send(request);
 
-        return Results.Ok();
+        return Results.Ok(MbResultWithError<string>.Ok());
     }
 }

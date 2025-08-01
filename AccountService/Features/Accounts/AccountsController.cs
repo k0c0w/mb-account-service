@@ -11,7 +11,9 @@ public class AccountsController : ControllerBase
         [FromBody] CreateNewAccountCommand request,
         [FromServices] IMediator mediator)
     {
-        var result = await mediator.Send(request);
+        var createdAccount = await mediator.Send(request);
+        
+        var result = MbResult<CreatedAccountDto, string[]>.Ok(createdAccount);
         return Results.Created("accounts", result);
     }
 
@@ -20,7 +22,7 @@ public class AccountsController : ControllerBase
     {
         var accounts = await mediator.Send(new GetAccountsQuery());
 
-        return Results.Json(accounts);
+        return Results.Json(MbResult<IEnumerable<AccountDto>, string[]>.Ok(accounts));
     }
 
     [HttpPatch("{id:guid}/interest-rate")]

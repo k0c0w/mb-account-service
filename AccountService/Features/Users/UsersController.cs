@@ -12,7 +12,7 @@ public class UsersController : ControllerBase
         [FromServices] IMediator mediator)
     {
         var accounts = await mediator.Send(new GetAccountsByOwnerIdQuery(id));
-
-        return Results.Json(accounts);
+    
+        return Results.Json(MbResult<IEnumerable<AccountByOwnerIdDto>, string[]>.Ok(accounts));
     }
 }

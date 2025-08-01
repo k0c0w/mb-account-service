@@ -16,7 +16,7 @@ public class AccountStatementsController(IMediator mediator)
         periodEndUtc ??= DateTimeOffset.UtcNow;
 
         var statement = await mediator.Send(new GetAccountStatementQuery(accountId, periodStartUtc, periodEndUtc.Value));
-
-        return Results.Ok(statement);
+        
+        return Results.Ok(MbResult<AccountStatementDto, string[]>.Ok(statement));
     }
 }

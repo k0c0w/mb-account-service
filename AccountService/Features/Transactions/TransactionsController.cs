@@ -13,6 +13,6 @@ public class TransactionsController : ControllerBase
     {
         await mediator.Send(request);
 
-        return Results.Ok();
+        return Results.Ok(MbResultWithError<string[]>.Ok());
     }
 }
