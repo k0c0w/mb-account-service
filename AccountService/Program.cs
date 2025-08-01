@@ -13,7 +13,7 @@ var services = builder.Services;
 var currentAssembly = Assembly.GetExecutingAssembly();
 
 services.AddOpenApi();
-services.AddSwagger();
+services.AddSwagger(builder.Configuration);
 
 services.AddControllers();
 services.AddLogging(cfg => cfg.AddConsole());

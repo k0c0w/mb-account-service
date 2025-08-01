@@ -1,22 +1,32 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 
 namespace AccountService.Swagger;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddSwagger(this IServiceCollection services)
+    public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         { 
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            options.CustomSchemaIds(id => id.FullName?.Replace('+', '-'));
+            options.AddSecurityDefinition("Keycloak", new OpenApiSecurityScheme
             {
-                In = ParameterLocation.Header,
-                Description = "Enter JWT token in format: Bearer {token}",
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT"
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows
+                {
+                    Implicit = new OpenApiOAuthFlow
+                    {
+                        AuthorizationUrl = new Uri(configuration["Keycloak:AuthorizationUrl"] ?? throw new ArgumentException()),
+                        Scopes = new Dictionary<string, string>
+                        {
+                            {"openid", "openid"},
+                            {"profile", "profile"},
+                        }
+                    }
+                }
             });
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
@@ -25,11 +35,14 @@ public static class ServiceCollectionExtensions
                     {
                         Reference = new OpenApiReference
                         {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
+                            Id="Keycloak",
+                            Type = ReferenceType.SecurityScheme
+                        },
+                        In = ParameterLocation.Header,
+                        Name = JwtBearerDefaults.AuthenticationScheme,
+                        Scheme = JwtBearerDefaults.AuthenticationScheme
                     },
-                    Array.Empty<string>()
+                    []
                 }
             });
             
@@ -37,7 +50,6 @@ public static class ServiceCollectionExtensions
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename), includeControllerXmlComments: true);
             options.OperationFilter<AddDefaultResponsesFilter>();
         });
-        services.AddEndpointsApiExplorer();
 
         return services;
     }

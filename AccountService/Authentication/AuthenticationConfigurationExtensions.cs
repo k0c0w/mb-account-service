@@ -1,6 +1,5 @@
-using System.Text;
 using AccountService.Features;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace AccountService.Authentication;
 
@@ -25,28 +24,19 @@ public static class AuthenticationConfigurationExtensions
     
     public static void AddJwt(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAuthentication("Bearer")
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                options.RequireHttpsMetadata = configuration.GetSection("Authentication")
+                    .GetValue<bool>("RequireHttpsMetadata");
+                options.Audience = GetByPath(configuration, "Authentication:Audience");
+                options.MetadataAddress = GetByPath(configuration, "Authentication:MetadataAddress");
                 options.TokenValidationParameters = new()
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = GetByPath(configuration, "Jwt:Issuer"),
-                    ValidAudience = GetByPath(configuration, "Jwt:Audience"),
-                    IssuerSigningKey = GetKey(configuration)
+                    ValidIssuer = GetByPath(configuration, "Authentication:Issuer"),
                 };
             });
         services.AddAuthorization();
-    }
-
-    private static SymmetricSecurityKey GetKey(IConfiguration configuration)
-    {
-        var key = GetByPath(configuration, "Jwt:Key");
-        
-        return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
     }
 
     private static string GetByPath(IConfiguration configuration, string path)
