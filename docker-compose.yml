@@ -1,6 +1,11 @@
-﻿services:
+﻿version: '3.8'
+services:
   modulbank:
-    image: modulbank
     build:
       context: .
-      dockerfile: ModulBank/Dockerfile
+      dockerfile: ./AccountService/Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_ENVIRONMENT=Production
