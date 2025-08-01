@@ -1,16 +1,18 @@
+using System.Reflection;
 using AccountService.Persistance.DataAccess;
 using AccountService.Domain;
 using AccountService.Persistance.Services;
 using AccountService.Middlewares;
 using AccountService.PipelineBehaviours;
+using AccountService.Swagger;
 using AccountService.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
-var currentAssembly = typeof(Program).Assembly;
+var currentAssembly = Assembly.GetExecutingAssembly();
 
 services.AddOpenApi();
-services.AddSwaggerGen();
+services.AddSwagger();
 
 services.AddControllers();
 services.AddLogging(cfg => cfg.AddConsole());

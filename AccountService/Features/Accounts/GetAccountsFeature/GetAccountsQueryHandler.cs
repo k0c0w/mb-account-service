@@ -26,7 +26,7 @@ public sealed class GetAccountsQueryHandler(IAccountRepository accountRepository
             OwnerId = account.OwnerId,
             Currency = account.Balance.Code.ToString(),
             Balance = account.Balance.Amount,
-            Type = account.Type.ToString(),
+            Type = account.Type,
             InterestRate = account.InterestRate?.Value ?? default(decimal?),
             CreationTimeUtc = account.CreationTimeUtc,
             ClosingTimeUtc = account.ClosingTimeUtc,

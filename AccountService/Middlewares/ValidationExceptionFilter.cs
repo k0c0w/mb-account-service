@@ -18,16 +18,13 @@ public class ValidationExceptionFilter : IMiddleware
             ctx.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             ctx.Response.ContentType = "application/json";
 
-            var errors = ex.Errors
+            var error = ex.Errors
                 .GroupBy(e => e.PropertyName)
-                .Select(g => new PropertyValidationError
-                {
-                    Error = g.First().ErrorMessage,
-                    Property = g.Key,
-                })
-                .ToArray();
+                .First();
 
-            await ctx.Response.WriteAsJsonAsync(MbResultWithError<PropertyValidationError[]>.Fail(errors));
+            var errorMessage = $"{error.Key}: {error.First().ErrorMessage}";
+            
+            await ctx.Response.WriteAsJsonAsync(MbResultWithError<string>.Fail(errorMessage));
         }
     }
 }

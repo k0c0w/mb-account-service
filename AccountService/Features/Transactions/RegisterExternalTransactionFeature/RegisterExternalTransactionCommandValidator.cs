@@ -1,4 +1,3 @@
-using AccountService.Domain;
 using AccountService.Validation;
 using FluentValidation;
 
@@ -17,7 +16,7 @@ public class RegisterExternalTransactionCommandValidator : AbstractValidator<Reg
         RuleFor(x => x.TransactionType)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .Must(x => Enum.TryParse<TransactionType>(x, out _))
+            .IsInEnum()
             .WithMessage("Unsupported Transaction type.");
     }
 }

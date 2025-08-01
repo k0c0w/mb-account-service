@@ -15,11 +15,12 @@ public class RegisterExternalTransactionCommandHandler(
     
     public async Task Handle(RegisterExternalTransactionCommand request, CancellationToken ct)
     {
-        if (!Enum.TryParse<TransactionType>(request.TransactionType, out var type))
+        if (!Enum.IsDefined(request.TransactionType))
         {
             throw DomainException.CreateValidationException("Unsupported transaction type.", 
                 new ArgumentOutOfRangeException(nameof(request.TransactionType), 
-                    $"Unsupported transaction type met. Forgot to add one?", request.TransactionType));
+                    request.TransactionType,
+                    "Unsupported transaction type met. Forgot to add one?"));
         }
         
         if (request.Amount <= decimal.Zero)
@@ -36,10 +37,25 @@ public class RegisterExternalTransactionCommandHandler(
         }
 
         var currency = new Currency(currencyCode, request.Amount);
-        
-        var account = await AccountRepository.GetByIdAsync(request.AccountId, ct);
-        account.ApplyIncomingTransaction(type, currency);
+
+        var account = await FindAccountOrThrowExceptionAsync(request.AccountId, ct);
+        account.ApplyIncomingTransaction(request.TransactionType, currency);
 
         await AccountRepository.UpdateAsync(account, ct);
+    }
+
+    private async Task<Account> FindAccountOrThrowExceptionAsync(Guid accountId, CancellationToken ct)
+    {
+        var byIdAccountFilter = new IAccountRepository.FindAccountsFilter.ByIdFilter(accountId);
+        var accounts = await AccountRepository.FindAsync(byIdAccountFilter, ct);
+
+        if (accounts.Count == 0)
+        {
+            throw DomainException.CreateValidationException($"An account is not found.",
+                new InvalidOperationException("An attempt to register transaction for non exiting account.", 
+                    new ArgumentException($"Invalid argument value: {accountId}.")));
+        }
+
+        return accounts.First(x => x.Id == accountId);
     }
 }

@@ -1,14 +1,28 @@
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace AccountService.Domain;
 
+/// <summary>
+/// An enumeration of possible account types
+/// </summary>
 [DataContract]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum AccountType : ushort
 {
-    [EnumMember(Value = "checking")]
+    /// <summary>
+    /// Account allows to withdraw and deposit money at any time
+    /// </summary>
+    [EnumMember(Value = "Checking")]
     Checking = 1,
-    [EnumMember(Value = "deposit")]
+    /// <summary>
+    /// Account allows to accumulate money
+    /// </summary>
+    [EnumMember(Value = "Deposit")]
     Deposit = 2,
-    [EnumMember(Value = "credit")]
+    /// <summary>
+    /// Account registers credit of money, which must be returned later
+    /// </summary>
+    [EnumMember(Value = "Credit")]
     Credit = 3,
 }

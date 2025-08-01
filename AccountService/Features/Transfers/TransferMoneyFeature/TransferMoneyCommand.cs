@@ -2,8 +2,11 @@ using MediatR;
 
 namespace AccountService.Features;
 
-public sealed record TransferMoneyCommand(
-    Guid SenderAccountId,
-    Guid RecipientAccountId,
-    decimal Amount
-    ) : IRequest;
+public sealed record TransferMoneyCommand : IRequest
+{
+    public required Guid SenderAccountId { get; init; }
+    
+    public required Guid RecipientAccountId { get; init; }
+    
+    public required decimal Amount { get; init; }
+} 

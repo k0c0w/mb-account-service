@@ -34,6 +34,6 @@ public class TransferMoneyCommandHandler(IAccountRepository accountRepository) :
         
         var accounts = await AccountRepository.FindAsync(byIdFilter, ct);
 
-        return accounts.Count == 0 ? default : accounts[0];
+        return accounts.Count == 0 ? default : accounts.First(x => x.Id == id);
     }
 }

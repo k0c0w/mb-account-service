@@ -39,7 +39,7 @@ public sealed class GetAccountStatementQueryHandler(IAccountRepository accountRe
                 Amount = transaction.Amount.Amount,
                 TransactionTime = transaction.TimeUtc.DateTime,
                 TransactionDescription = transaction.Description,
-                TransactionType = transaction.Type.ToString(),
+                TransactionType = transaction.Type,
             };
         }
 
