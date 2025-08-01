@@ -22,6 +22,7 @@ services.AddAllFromAssembly(currentAssembly);
 services.AddSingleton<IUserVerificator, UserVerificator>();
 services.AddSingleton<ICurrencyVerificator, CurrencyVerificator>();
 services.AddSingleton<IAccountRepository, AccountRepository>();
+services.AddCors();
 
 services.AddMediatR(cfg =>
 {
@@ -33,6 +34,12 @@ services.AddMediatR(cfg =>
 services.AddFluentValidation(currentAssembly);
 
 var app = builder.Build();
+
+app.UseCors(opt =>
+{
+    opt.AllowCredentials();
+    opt.AllowAnyOrigin();
+});
 
 app.MapOpenApi();
 app.UseSwagger();
