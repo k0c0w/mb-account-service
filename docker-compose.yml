@@ -1,6 +1,38 @@
-﻿services:
+﻿version: '3.8'
+services:
   modulbank:
-    image: modulbank
     build:
       context: .
-      dockerfile: ModulBank/Dockerfile
+      dockerfile: ./AccountService/Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Authentication__Audience=account-service
+      - Authentication__Issuer=http://localhost:8080/realms/modulbank
+      - Authentication__MetadataAddress=http://keycloak:8080/realms/modulbank/.well-known/openid-configuration
+      - Authentication__RequireHttpsMetadata=false
+
+    depends_on:
+      - keycloak
+    networks:
+      - keycloak-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3.2
+    container_name: keycloak
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    command: start-dev --import-realm
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./realm.json:/opt/keycloak/data/import/realm.json
+    networks:
+      - keycloak-network
+
+networks:
+  keycloak-network:
+    driver: bridge

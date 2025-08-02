@@ -1,0 +1,79 @@
+{
+  "id": "modulbank-realm",
+  "realm": "modulbank",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "account-service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "redirectUris": ["http://localhost/*", "http://localhost:5232/*"],
+      "webOrigins": ["http://localhost","http://localhost:5232"],
+      "publicClient": true,
+      "clientAuthenticatorType": "client-id",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "token.endpoint.auth.signing.alg": "HS256"
+      },
+    "protocolMappers": [
+      {
+        "name": "audience-mapper",
+        "protocol": "openid-connect",
+        "protocolMapper": "oidc-audience-mapper",
+        "config": {
+          "included.client.audience": "account-service",
+          "id.token.claim": "true",
+          "access.token.claim": "true"
+        }
+      }
+    ]
+    }
+  ],
+  "users": [
+    {
+      "id": "88bc045c-ecc8-4cb7-8cd9-b28938abef55",
+      "username": "testuser1",
+      "enabled": true,
+      "email": "testuser1@example.com",
+      "firstName": "Test",
+      "lastName": "User1",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testpass1",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"]
+    },
+    {
+      "id": "6d8600da-cc20-42b9-a410-37c0b9e5b6c9",
+      "username": "testuser2",
+      "enabled": true,
+      "email": "testuser2@example.com",
+      "firstName": "Test",
+      "lastName": "User2",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testpass2",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "user",
+        "description": "Default user role",
+        "composite": false
+      }
+    ]
+  }
+}

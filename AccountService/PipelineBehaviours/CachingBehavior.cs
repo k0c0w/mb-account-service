@@ -1,4 +1,4 @@
-using AccountService.Features.Utils;
+using AccountService.Features;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 

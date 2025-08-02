@@ -1,12 +1,21 @@
-## Допустимые UUID пользователей
+# Запуск
+Для работы необходимо запустить keycloak и указать его расположение приложению через appsettings или env.
+Приложение ожидает audience "account-service" и рассчитывает на Open id connect протокол.
+Для запуска Keycloak можно использовать keycloak из docker-compose.yml: `docker-compose up -d keycloak`
+Приложение можно запустить в таком случае, как локально(порт указан в launchsettings), так в Docker (порт 80).
+Для запуска всей системы используйте `docker-compose up -d`
 
-В системе разрешены только следующие UUID пользователей:
+Swagger доступен по /swagger.
 
-- `88bc045c-ecc8-4cb7-8cd9-b28938abef55`
-- `6d8600da-cc20-42b9-a410-37c0b9e5b6c9`
-- `6e3f15c5-7f3f-418f-8f99-77c0b10d91ca`
-- `b5743f83-86be-432c-ae06-1bafc73c9f21`
-- `fe88a76d-c896-4f78-91bd-1a6f2b7b8dab`
+## Пользователи
+В системе уже созданы следующие пользователи:
+(uuid, username, password)
+- `88bc045c-ecc8-4cb7-8cd9-b28938abef55`, testuser1, testpass1
+- `6d8600da-cc20-42b9-a410-37c0b9e5b6c9`, testpass1, testpass2
+
+Только они допускаются для создания новых счетов.
+Регистрация новых пользователей возможна в keycloak в realm modulbank.
+
 
 ## Допустимые коды валют
 

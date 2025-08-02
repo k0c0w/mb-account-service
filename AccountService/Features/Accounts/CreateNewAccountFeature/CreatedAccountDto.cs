@@ -1,20 +1,63 @@
-namespace AccountService.Features;
+using AccountService.Domain;
+using JetBrains.Annotations;
+
+namespace AccountService.Features.Accounts.CreateNewAccountFeature;
 
 public record CreatedAccountDto
 {
+    /// <summary>
+    /// Identity of created account
+    /// </summary>
+    // Property is being used by serialization.
+    [UsedImplicitly]
     public required Guid Id { get; init; }
-        
+    
+    /// <summary>
+    /// Identity of account owner
+    /// </summary>
+    // Property is being used by serialization.
+    [UsedImplicitly]
     public required Guid OwnerId { get; init; } 
     
-    public required string Type { get; init; }
+    /// <summary>
+    /// Account type
+    /// </summary>
+    // Property is being used by serialization.
+    [UsedImplicitly]
+    public required AccountType Type { get; init; }
         
+    /// <summary>
+    /// Account balance
+    /// </summary>
+    // Property is being used by serialization.
+    [UsedImplicitly]
     public required decimal Balance { get; init; }
     
+    /// <summary>
+    /// Account currency (iso 4217)
+    /// </summary>
+    // Property is being used by serialization.
+    [UsedImplicitly]
     public required string Currency { get; init; }
         
+    /// <summary>
+    /// Rate of interest for this account
+    /// </summary>
+    // Property is being used by serialization.
+    [UsedImplicitly]
     public required decimal? InterestRate { get; init; }
         
+    /// <summary>
+    /// This account creation time UTC
+    /// </summary>
+    // Property is being used by serialization.
+    [UsedImplicitly]
     public required DateTimeOffset CreationTimeUtc { get; init; }
         
+    /// <summary>
+    /// This account closing time UTC
+    /// </summary>
+    // Property is being used by serialization.
+    [UsedImplicitly]
     public required DateTimeOffset? ClosingTimeUtc { get; init; }
 }

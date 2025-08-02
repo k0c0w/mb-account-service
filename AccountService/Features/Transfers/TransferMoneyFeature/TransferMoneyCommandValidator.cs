@@ -1,8 +1,11 @@
 using AccountService.Validation;
 using FluentValidation;
+using JetBrains.Annotations;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Transfers.TransferMoneyFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public class TransferMoneyCommandValidator : AbstractValidator<TransferMoneyCommand>
 {
     public TransferMoneyCommandValidator()

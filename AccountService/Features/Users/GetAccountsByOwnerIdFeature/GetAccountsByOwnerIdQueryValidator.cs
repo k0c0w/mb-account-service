@@ -1,8 +1,11 @@
 using AccountService.Validation;
 using FluentValidation;
+using JetBrains.Annotations;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Users.GetAccountsByOwnerIdFeature;
 
+// Property is being used by serialization
+[UsedImplicitly]
 public class GetAccountsByOwnerIdQueryValidator : AbstractValidator<GetAccountsByOwnerIdQuery>
 {
     public GetAccountsByOwnerIdQueryValidator()
