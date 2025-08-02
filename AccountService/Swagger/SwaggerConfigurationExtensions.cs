@@ -4,8 +4,27 @@ using Microsoft.OpenApi.Models;
 
 namespace AccountService.Swagger;
 
-public static class ServiceCollectionExtensions
+public static class SwaggerConfigurationExtensions
 {
+    private static readonly Dictionary<string, string> Scopes = new()
+    {
+        { "openid", "openid" },
+        { "profile", "profile" }
+    };
+    
+    public static void UseSwaggerAndSwaggerUi(this IApplicationBuilder app, IConfiguration configuration)
+    {
+        var clientId = configuration["Authentication:Audience"] ?? throw new ArgumentException();
+        
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.OAuthClientId(clientId);
+            options.OAuthScopes(Scopes.Values.ToArray());
+            options.EnablePersistAuthorization();
+        });
+    }
+    
     public static void AddSwagger(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddEndpointsApiExplorer();
@@ -19,12 +38,9 @@ public static class ServiceCollectionExtensions
                 {
                     Implicit = new OpenApiOAuthFlow
                     {
+                        
                         AuthorizationUrl = new Uri(configuration["Keycloak:AuthorizationUrl"] ?? throw new ArgumentException()),
-                        Scopes = new Dictionary<string, string>
-                        {
-                            {"openid", "openid"},
-                            {"profile", "profile"}
-                        }
+                        Scopes = Scopes
                     }
                 }
             });

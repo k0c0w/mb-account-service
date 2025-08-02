@@ -38,8 +38,7 @@ services.AddFluentValidation(currentAssembly);
 var app = builder.Build();
 
 app.MapOpenApi();
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerAndSwaggerUi(builder.Configuration);
 
 app.UseCors(opt =>
 {
