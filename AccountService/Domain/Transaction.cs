@@ -6,19 +6,27 @@ public class Transaction
 {
     // Resharper disable once. Value is used by serialization and domain.
     [UsedImplicitly]
-    public Guid Id { get; }
+    public Guid Id { get; protected init; }
 
-    public Guid AccountId { get; }
+    public Guid AccountId { get;  protected init; }
 
-    public Guid? CounterpartyAccountId { get; }
+    public Guid? CounterpartyAccountId { get;  protected init; }
 
-    public TransactionType Type { get; }
+    public TransactionType Type { get;  protected init; }
 
-    public Currency Amount { get; }
+    public Currency Amount { get; protected init; }
 
-    public string Description { get; }
+    public string Description { get; protected init; }
 
-    public DateTimeOffset TimeUtc { get; }
+    public DateTimeOffset TimeUtc { get; protected init; }
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    [UsedImplicitly]
+    // fabric method, used with reflection
+    protected Transaction()
+    {
+    }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     
     public Transaction(
         Guid accountId, 

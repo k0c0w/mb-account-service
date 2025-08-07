@@ -1,18 +1,20 @@
 namespace AccountService.Domain;
 
-public readonly struct Currency
+public sealed record Currency
 {
     public CurrencyCode Code { get; }
     
     public decimal Amount { get; }
 
-    public Currency(CurrencyCode code, decimal currencyAmount)
+    public Currency(CurrencyCode code, decimal amount)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(currencyAmount, nameof(currencyAmount));
+        ArgumentOutOfRangeException.ThrowIfNegative(amount, nameof(amount));
 
         Code = code;
-        Amount = currencyAmount;
+        Amount = amount;
     }
+    
+    public Currency(string code, decimal amount) : this(new CurrencyCode(code), amount) { }
 
     public override string ToString() => $"{Code} {Amount}";
 }
