@@ -1,28 +1,32 @@
+using JetBrains.Annotations;
+
 namespace AccountService.Domain;
 
 public class Account
 {
     private const decimal InitialBalance = decimal.Zero;
     
-    public Guid Id { get; }
+    public Guid Id { get; protected init; }
     
-    public Guid OwnerId { get; } 
+    public Guid OwnerId { get; protected init; } 
     
-    public AccountType Type { get; }
+    public AccountType Type { get; protected init; }
     
-    public Currency Balance { get; private set; }
-    
-    public AccountInterestRate? InterestRate { get; private set; }
-    
-    public DateTimeOffset CreationTimeUtc { get; }
-    
-    public DateTimeOffset? ClosingTimeUtc { get; private set; }
+    public Currency Balance { get; protected set; }
 
-    private bool IsClosed { get; set; }
+    public AccountInterestRate? InterestRate { get; protected set; }
+    
+    public DateTimeOffset CreationTimeUtc { get; protected init; }
+    
+    public DateTimeOffset? ClosingTimeUtc { get; protected set; }
+    
+    public DateTimeOffset ModifiedAt { get; protected set; }
 
-    public IReadOnlyList<Transaction> TransactionHistory => _transactions;
+    public IReadOnlyList<Transaction> TransactionHistory => Transactions;
+    
+    protected List<Transaction> Transactions { get; init; }
 
-    private readonly List<Transaction> _transactions;
+    private bool IsClosed => ClosingTimeUtc is not null;
     
     public Account(
         Guid ownerId, 
@@ -57,10 +61,18 @@ public class Account
 
         InterestRate = interestRate;
         CreationTimeUtc = DateTimeOffset.UtcNow;
+        ModifiedAt = CreationTimeUtc;
         Balance = new Currency(currencyCode, InitialBalance);
 
-        _transactions = [];
+        Transactions = [];
     }
+    
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    [UsedImplicitly]
+    // Fabric method, used with reflection
+    protected Account() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
 
     public void Close()
     {
@@ -79,8 +91,6 @@ public class Account
         }
         
         ClosingTimeUtc = DateTimeOffset.UtcNow;
-
-        IsClosed = true;
     }
 
     public void ChangeInterestRate(AccountInterestRate interestRate)
@@ -92,6 +102,7 @@ public class Account
         }
 
         InterestRate = interestRate;
+        ModifiedAt = DateTimeOffset.UtcNow;
     }
 
     public void SendMoney(Account recipient, Currency money)
@@ -145,7 +156,7 @@ public class Account
     
     public decimal GetBalanceAt(DateTimeOffset time)
     {
-        return _transactions
+        return Transactions
             .TakeWhile(t => t.TimeUtc <= time)
             .Aggregate(InitialBalance, (sum, transaction) =>
         {
@@ -175,9 +186,10 @@ public class Account
             money, 
             description,
             counterpartyAccountId);
-        _transactions.Add(transaction);
+        Transactions.Add(transaction);
 
         Balance = new Currency(Balance.Code, Balance.Amount - money.Amount);
+        ModifiedAt = DateTimeOffset.UtcNow;
     }
     
     private void DebitMoney(Currency money, string description, Guid? counterpartyAccountId = default)
@@ -187,8 +199,9 @@ public class Account
             money, 
             description,
             counterpartyAccountId);
-        _transactions.Add(transaction);
+        Transactions.Add(transaction);
 
         Balance = new Currency(Balance.Code, Balance.Amount + money.Amount);
+        ModifiedAt = DateTimeOffset.UtcNow;
     }
 }
