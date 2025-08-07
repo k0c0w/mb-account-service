@@ -1,8 +1,11 @@
 using AccountService.Domain;
+using JetBrains.Annotations;
 using MediatR;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Users.GetAccountsByOwnerIdFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public sealed class GetAccountsByOwnerIdQueryHandler(
     IUserVerificator userVerificator,
     IAccountRepository accountRepository

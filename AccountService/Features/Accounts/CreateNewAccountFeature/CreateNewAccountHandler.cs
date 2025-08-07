@@ -1,8 +1,11 @@
 using AccountService.Domain;
+using JetBrains.Annotations;
 using MediatR;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Accounts.CreateNewAccountFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public sealed class CreateNewAccountHandler(
     ICurrencyVerificator currencyVerificator,
         IUserVerificator userVerificator,
@@ -25,11 +28,12 @@ public sealed class CreateNewAccountHandler(
                 new ArgumentException($"Unsupported currency met: {request.CurrencyCode}."));
         }
         
-        if (!Enum.TryParse<AccountType>(request.AccountType, ignoreCase: true, out var accountType))
+        if (!Enum.IsDefined(request.AccountType))
         {
             throw DomainException.CreateValidationException("Unsupported account type.", 
                 new ArgumentOutOfRangeException(nameof(request.AccountType), 
-                    $"Unsupported account type met. Forgot to add one?", request.AccountType));
+                    request.AccountType,
+                    "Unsupported account type met. Forgot to add one?"));
         }
 
         if (!await UserVerificator.UserWithIdExsitsAsync(request.OwnerId, ct))
@@ -38,13 +42,13 @@ public sealed class CreateNewAccountHandler(
                 new InvalidOperationException($"User with id {request.OwnerId} does not exist in system."));
         }
 
-        var interestRate = request.InterestRate.HasValue
+        var interestRate = request.InterestRate.HasValue && request.InterestRate.Value != 0
             ? new AccountInterestRate(request.InterestRate.Value)
             : default;
         
-        var account = new Account(request.OwnerId, currencyCode, accountType, interestRate);
+        var account = new Account(request.OwnerId, currencyCode, request.AccountType, interestRate);
 
-        await accountRepository.AddAsync(account, ct);
+        await AccountRepository.AddAsync(account, ct);
 
         return DomainToDto(account);
     }
@@ -57,10 +61,10 @@ public sealed class CreateNewAccountHandler(
             OwnerId = account.OwnerId,
             Currency = account.Balance.Code.ToString(),
             Balance = account.Balance.Amount,
-            Type = account.Type.ToString(),
+            Type = account.Type,
             InterestRate = account.InterestRate?.Value ?? default(decimal?),
             CreationTimeUtc = account.CreationTimeUtc,
-            ClosingTimeUtc = account.ClosingTimeUtc,
+            ClosingTimeUtc = account.ClosingTimeUtc
         };
     }
 }

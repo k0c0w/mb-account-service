@@ -1,9 +1,11 @@
-using AccountService.Domain;
 using AccountService.Validation;
 using FluentValidation;
+using JetBrains.Annotations;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Transactions.RegisterExternalTransactionFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public class RegisterExternalTransactionCommandValidator : AbstractValidator<RegisterExternalTransactionCommand>
 {
     public RegisterExternalTransactionCommandValidator()
@@ -17,7 +19,7 @@ public class RegisterExternalTransactionCommandValidator : AbstractValidator<Reg
         RuleFor(x => x.TransactionType)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .Must(x => Enum.TryParse<TransactionType>(x, out _))
+            .IsInEnum()
             .WithMessage("Unsupported Transaction type.");
     }
 }
