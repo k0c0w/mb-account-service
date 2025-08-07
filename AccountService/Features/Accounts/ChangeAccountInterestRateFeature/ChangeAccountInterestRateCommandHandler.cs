@@ -1,8 +1,11 @@
 using AccountService.Domain;
+using JetBrains.Annotations;
 using MediatR;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Accounts.ChangeAccountInterestRateFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public class ChangeAccountInterestRateCommandHandler(IAccountRepository accountRepository)
     : IRequestHandler<ChangeAccountInterestRateCommand>
 {

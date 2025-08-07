@@ -1,11 +1,13 @@
 using AccountService.Domain;
 
-namespace AccountService.Persistance.Services;
+namespace AccountService.Persistence.Services;
 
 public class CurrencyVerificator : ICurrencyVerificator
 {
     public ValueTask<bool> IsSupportedAsync(CurrencyCode currencyCode, CancellationToken ct = default)
     {
+        ct.ThrowIfCancellationRequested();
+        
         var value = currencyCode.Value is "RUB" or "USD" or "EUR";
         
         return ValueTask.FromResult(value);

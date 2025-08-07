@@ -1,5 +1,7 @@
 using System.Diagnostics;
 
+namespace AccountService.Middlewares;
+
 public class RequestLogMiddleware(ILogger<RequestLogMiddleware> logger) : IMiddleware
 {
     private ILogger Logger => logger;

@@ -1,8 +1,11 @@
 using AccountService.Domain;
+using JetBrains.Annotations;
 using MediatR;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Transfers.TransferMoneyFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public class TransferMoneyCommandHandler(IAccountRepository accountRepository) : IRequestHandler<TransferMoneyCommand>
 {
     private IAccountRepository AccountRepository => accountRepository;
@@ -34,6 +37,6 @@ public class TransferMoneyCommandHandler(IAccountRepository accountRepository) :
         
         var accounts = await AccountRepository.FindAsync(byIdFilter, ct);
 
-        return accounts.Count == 0 ? default : accounts[0];
+        return accounts.Count == 0 ? default : accounts.First(x => x.Id == id);
     }
 }

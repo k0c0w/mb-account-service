@@ -1,7 +1,6 @@
-using AccountService.Features.Utils;
 using MediatR;
 
-namespace AccountService.Features;
+namespace AccountService.Features.AccountStatements.GetAccountStatementFeature;
 
 public sealed record GetAccountStatementQuery(Guid AccountId, DateTimeOffset PeriodStartUtc, DateTimeOffset PeriodEndUtc) 
     : IRequest<AccountStatementDto>, ICachedRequest

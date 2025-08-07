@@ -1,7 +1,6 @@
 using System.Net;
-using System.Text.Json;
+using AccountService.Features;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 
 namespace AccountService.Middlewares;
 
@@ -18,21 +17,13 @@ public class ValidationExceptionFilter : IMiddleware
             ctx.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             ctx.Response.ContentType = "application/json";
 
-            var errorDict = ex.Errors
+            var error = ex.Errors
                 .GroupBy(e => e.PropertyName)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Select(e => e.ErrorMessage).ToArray()
-                );
+                .First();
 
-            var problemDetails = new ValidationProblemDetails(errorDict)
-            {
-                Status = StatusCodes.Status400BadRequest,
-                Title = "One or more validation errors occurred.",
-            };
-
-            var json = JsonSerializer.Serialize(problemDetails);
-            await ctx.Response.WriteAsync(json);
+            var errorMessage = $"{error.Key}: {error.First().ErrorMessage}";
+            
+            await ctx.Response.WriteAsJsonAsync(MbResultWithError<string>.Fail(errorMessage));
         }
     }
 }

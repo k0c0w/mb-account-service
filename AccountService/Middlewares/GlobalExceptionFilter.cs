@@ -1,6 +1,5 @@
 using System.Net;
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
+using AccountService.Features;
 
 namespace AccountService.Middlewares;
 
@@ -21,15 +20,8 @@ public class GlobalExceptionFilter(ILogger<GlobalExceptionFilter> logger)
 
             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             
-            var details = new ProblemDetails
-            {
-                Status = StatusCodes.Status500InternalServerError,
-                Title = "Internal Server Error",
-                Detail = "If error persists, contact developers."
-            };
-            var json = JsonSerializer.Serialize(details);
-
-            await ctx.Response.WriteAsync(json);
+            var errorResult = MbResultWithError<string>.Fail("Internal Server Error.");
+            await ctx.Response.WriteAsJsonAsync(errorResult);
         }
     }
 }

@@ -7,7 +7,7 @@ public class DomainException : Exception
     public enum DomainExceptionType
     {
         ValidationError = 1,
-        ExistenceError,
+        ExistenceError
     }
 
     private DomainException(string message, DomainExceptionType type, Exception innerException)

@@ -1,7 +1,11 @@
+using JetBrains.Annotations;
+
 namespace AccountService.Domain;
 
 public class Transaction
 {
+    // Resharper disable once. Value is used by serialization and domain.
+    [UsedImplicitly]
     public Guid Id { get; }
 
     public Guid AccountId { get; }

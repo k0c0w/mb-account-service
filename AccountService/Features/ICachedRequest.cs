@@ -1,5 +1,5 @@
 
-namespace AccountService.Features.Utils;
+namespace AccountService.Features;
 
 public interface ICachedRequest
 {

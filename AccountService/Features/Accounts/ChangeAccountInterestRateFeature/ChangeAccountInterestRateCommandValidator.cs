@@ -1,8 +1,11 @@
 using AccountService.Validation;
 using FluentValidation;
+using JetBrains.Annotations;
 
-namespace AccountService.Features;
+namespace AccountService.Features.Accounts.ChangeAccountInterestRateFeature;
 
+// Resharper disable once. Class is being called via reflection.
+[UsedImplicitly]
 public class ChangeAccountInterestRateCommandValidator : AbstractValidator<ChangeAccountInterestRateCommand>
 {
     public ChangeAccountInterestRateCommandValidator()
