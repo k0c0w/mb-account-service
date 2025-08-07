@@ -7,6 +7,7 @@ using AccountService.Persistence.Services;
 using AccountService.PipelineBehaviours;
 using AccountService.Swagger;
 using AccountService.Validation;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -23,6 +24,9 @@ services.AddAllFromAssembly(currentAssembly);
 services.AddSingleton<IUserVerificator, UserVerificator>();
 services.AddSingleton<ICurrencyVerificator, CurrencyVerificator>();
 services.AddSingleton<IAccountRepository, AccountRepository>();
+services.AddDbContext<AccountServiceDbContext>(
+    cfg => cfg.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
 services.AddCors();
 services.AddJwt(builder.Configuration);
 
