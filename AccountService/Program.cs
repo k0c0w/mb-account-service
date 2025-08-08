@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var currentAssembly = Assembly.GetExecutingAssembly();
+var dbConfig = builder.Configuration.GetRequiredSection("Database");
 
 services.AddOpenApi();
 services.AddSwagger(builder.Configuration);
@@ -24,7 +25,7 @@ services.AddAllFromAssembly(currentAssembly);
 services.AddSingleton<IUserVerificator, UserVerificator>();
 services.AddSingleton<ICurrencyVerificator, CurrencyVerificator>();
 services.AddDbContext<AccountServiceDbContext>(
-    cfg => cfg.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+    cfg => cfg.UseNpgsql(dbConfig.GetValue<string>("ConnectionString")));
 
 services.AddCors();
 services.AddJwt(builder.Configuration);
@@ -40,7 +41,7 @@ services.AddFluentValidation(currentAssembly);
 
 var app = builder.Build();
 
-if (app.Configuration.GetValue<bool>("MustMigrateDatabase"))
+if (dbConfig.GetValue<bool>("MustMigrate"))
 {
     InProcessMigrator.ApplyMigrations(app.Services);
 }
