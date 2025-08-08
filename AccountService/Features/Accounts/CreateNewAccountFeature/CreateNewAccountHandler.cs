@@ -1,6 +1,8 @@
 using AccountService.Domain;
+using AccountService.Persistence.DataAccess;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Features.Accounts.CreateNewAccountFeature;
 
@@ -9,11 +11,13 @@ namespace AccountService.Features.Accounts.CreateNewAccountFeature;
 public sealed class CreateNewAccountHandler(
     ICurrencyVerificator currencyVerificator,
         IUserVerificator userVerificator,
-        IAccountRepository accountRepository
+        AccountServiceDbContext dbContext
     )
     : IRequestHandler<CreateNewAccountCommand, CreatedAccountDto>
 {
-    private IAccountRepository AccountRepository => accountRepository;
+    private AccountServiceDbContext DbContext => dbContext;
+    
+    private DbSet<Account> Accounts => DbContext.Accounts;
     
     private ICurrencyVerificator CurrencyVerificator => currencyVerificator;
     
@@ -47,8 +51,9 @@ public sealed class CreateNewAccountHandler(
             : default;
         
         var account = new Account(request.OwnerId, currencyCode, request.AccountType, interestRate);
+        await Accounts.AddAsync(account, ct);
 
-        await AccountRepository.AddAsync(account, ct);
+        await DbContext.SaveChangesAsync(ct);
 
         return DomainToDto(account);
     }

@@ -1,24 +1,28 @@
 using AccountService.Domain;
+using AccountService.Persistence.DataAccess;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Features.Transfers.TransferMoneyFeature;
 
 // Resharper disable once. Class is being called via reflection.
 [UsedImplicitly]
-public class TransferMoneyCommandHandler(IAccountRepository accountRepository) : IRequestHandler<TransferMoneyCommand>
+public class TransferMoneyCommandHandler(AccountServiceDbContext dbContext) : IRequestHandler<TransferMoneyCommand>
 {
-    private IAccountRepository AccountRepository => accountRepository;
+    private AccountServiceDbContext DbContext => dbContext;
+    
+    private DbSet<Account> AccountRepository => DbContext.Accounts;
     
     public async Task Handle(TransferMoneyCommand request, CancellationToken ct)
     {
-        var sender = await FindAccountByIdAsync(request.SenderAccountId, ct);
+        var sender = await AccountRepository.FindByIdAsync(request.SenderAccountId, ct);
         if (sender is null)
         {
             throw DomainException.CreateExistenceException("Sender account is not found.");
         }
         
-        var recipient = await FindAccountByIdAsync(request.RecipientAccountId, ct);
+        var recipient = await AccountRepository.FindByIdAsync(request.RecipientAccountId, ct);
         if (recipient is null)
         {
             throw DomainException.CreateExistenceException("Recipient account is not found.");
@@ -26,17 +30,8 @@ public class TransferMoneyCommandHandler(IAccountRepository accountRepository) :
 
         var currency = new Currency(new CurrencyCode(sender.Balance.Code.Value), request.Amount);
         sender.SendMoney(recipient, currency);
-
-        await AccountRepository.UpdateAsync(sender, ct);
-        await AccountRepository.UpdateAsync(recipient, ct);
-    }
-
-    private async Task<Account?> FindAccountByIdAsync(Guid id, CancellationToken ct)
-    {
-        var byIdFilter = new IAccountRepository.FindAccountsFilter.ByIdFilter(id);
+        AccountRepository.UpdateRange(sender, recipient);
         
-        var accounts = await AccountRepository.FindAsync(byIdFilter, ct);
-
-        return accounts.Count == 0 ? default : accounts.First(x => x.Id == id);
+        await DbContext.SaveChangesAsync(ct);
     }
 }

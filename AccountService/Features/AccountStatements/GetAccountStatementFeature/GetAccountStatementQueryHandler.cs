@@ -1,21 +1,27 @@
 using AccountService.Domain;
+using AccountService.Persistence.DataAccess;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Features.AccountStatements.GetAccountStatementFeature;
 
 // Resharper disable once. Class is being called via reflection.
 [UsedImplicitly]
-public sealed class GetAccountStatementQueryHandler(IAccountRepository accountRepository)
+public sealed class GetAccountStatementQueryHandler(AccountServiceDbContext dbContext)
     : IRequestHandler<GetAccountStatementQuery, AccountStatementDto>
 {
-    private IAccountRepository AccountRepository => accountRepository;
+    private DbSet<Account> AccountRepository => dbContext.Accounts;
     
     public async Task<AccountStatementDto> Handle(GetAccountStatementQuery request, CancellationToken ct)
     {
         ThrowIfInvalidPeriod(request.PeriodStartUtc, request.PeriodEndUtc);
         
-        var account = await AccountRepository.GetByIdAsync(request.AccountId, ct);
+        var account = await AccountRepository.FindByIdAsync(request.AccountId, ct);
+        if (account is null)
+        {
+            throw DomainException.CreateExistenceException("Account does not exists.");
+        }
 
         var actualStatementStartTime = Max(request.PeriodStartUtc, account.CreationTimeUtc);
         var actualStatementEndTime = Min(request.PeriodEndUtc, account.ClosingTimeUtc ?? DateTimeOffset.UtcNow);
