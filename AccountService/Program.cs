@@ -23,7 +23,6 @@ services.AddAllFromAssembly(currentAssembly);
 
 services.AddSingleton<IUserVerificator, UserVerificator>();
 services.AddSingleton<ICurrencyVerificator, CurrencyVerificator>();
-services.AddSingleton<IAccountRepository, AccountRepository>();
 services.AddDbContext<AccountServiceDbContext>(
     cfg => cfg.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
@@ -40,6 +39,11 @@ services.AddMediatR(cfg =>
 services.AddFluentValidation(currentAssembly);
 
 var app = builder.Build();
+
+if (app.Configuration.GetValue<bool>("MustMigrateDatabase"))
+{
+    InProcessMigrator.ApplyMigrations(app.Services);
+}
 
 app.MapOpenApi();
 app.UseSwaggerAndSwaggerUi(builder.Configuration);
