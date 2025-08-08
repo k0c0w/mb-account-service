@@ -21,6 +21,7 @@ public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbCon
         b.HasKey(t => t.Id);
         b.HasIndex(t => t.TimeUtc)
             .HasMethod("gist");
+        b.HasIndex(t => new { t.AccountId, t.TimeUtc });
         
         b.Property(t => t.Id)
             .ValueGeneratedNever()
@@ -42,6 +43,8 @@ public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbCon
         b.Property(t => t.TimeUtc)
             .IsRequired()
             .IsConcurrencyToken();
+
+        b.ToTable("Transactions");
     }
     
     private static void ConfigureEntity(EntityTypeBuilder<Account> b)
