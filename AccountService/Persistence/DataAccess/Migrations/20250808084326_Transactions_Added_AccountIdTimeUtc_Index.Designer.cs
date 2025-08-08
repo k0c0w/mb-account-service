@@ -3,6 +3,7 @@ using System;
 using AccountService.Persistence.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccountService.Persistence.DataAccess.Migrations
 {
     [DbContext(typeof(AccountServiceDbContext))]
-    partial class AccountServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250808084326_Transactions_Added_AccountIdTimeUtc_Index")]
+    partial class Transactions_Added_AccountIdTimeUtc_Index
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,7 +91,7 @@ namespace AccountService.Persistence.DataAccess.Migrations
 
                     b.HasIndex("AccountId", "TimeUtc");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("Transaction");
                 });
 
             modelBuilder.Entity("AccountService.Domain.Account", b =>
@@ -143,7 +146,7 @@ namespace AccountService.Persistence.DataAccess.Migrations
 
                             b1.HasKey("TransactionId");
 
-                            b1.ToTable("Transactions");
+                            b1.ToTable("Transaction");
 
                             b1.WithOwner()
                                 .HasForeignKey("TransactionId");

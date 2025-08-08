@@ -3,6 +3,7 @@ using System;
 using AccountService.Persistence.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccountService.Persistence.DataAccess.Migrations
 {
     [DbContext(typeof(AccountServiceDbContext))]
-    partial class AccountServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250808084525_Transactions_RenamedTable")]
+    partial class Transactions_RenamedTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
