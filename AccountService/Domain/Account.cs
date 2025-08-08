@@ -21,7 +21,7 @@ public class Account
     public DateTimeOffset? ClosingTimeUtc { get; protected set; }
     
     public DateTimeOffset ModifiedAt { get; protected set; }
-
+    
     public IReadOnlyList<Transaction> TransactionHistory => Transactions;
     
     protected List<Transaction> Transactions { get; init; }

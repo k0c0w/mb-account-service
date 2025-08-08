@@ -11,6 +11,8 @@ namespace AccountService.Persistence.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS btree_gist;");
+            
             migrationBuilder.CreateTable(
                 name: "Accounts",
                 columns: table => new
@@ -75,6 +77,8 @@ namespace AccountService.Persistence.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("DROP EXTENSION IF EXISTS btree_gist CASCADE;");
+            
             migrationBuilder.DropTable(
                 name: "Transaction");
 
