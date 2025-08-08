@@ -1,18 +1,22 @@
 using AccountService.Domain;
+using AccountService.Persistence.DataAccess;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Features.Transactions.RegisterExternalTransactionFeature;
 
 // Resharper disable once. Class is being called via reflection.
 [UsedImplicitly]
 public class RegisterExternalTransactionCommandHandler(
-    IAccountRepository accountRepository,
+    AccountServiceDbContext dbContext,
     ICurrencyVerificator currencyVerificator
     )
     : IRequestHandler<RegisterExternalTransactionCommand>
 {
-    private IAccountRepository AccountRepository => accountRepository;
+    private AccountServiceDbContext DbContext => dbContext;
+    
+    private DbSet<Account> Accounts => DbContext.Accounts;
     
     private ICurrencyVerificator CurrencyVerificator => currencyVerificator;
     
@@ -41,24 +45,17 @@ public class RegisterExternalTransactionCommandHandler(
 
         var currency = new Currency(currencyCode, request.Amount);
 
-        var account = await FindAccountOrThrowExceptionAsync(request.AccountId, ct);
-        account.ApplyIncomingTransaction(request.TransactionType, currency);
-
-        await AccountRepository.UpdateAsync(account, ct);
-    }
-
-    private async Task<Account> FindAccountOrThrowExceptionAsync(Guid accountId, CancellationToken ct)
-    {
-        var byIdAccountFilter = new IAccountRepository.FindAccountsFilter.ByIdFilter(accountId);
-        var accounts = await AccountRepository.FindAsync(byIdAccountFilter, ct);
-
-        if (accounts.Count == 0)
+        var account = await Accounts.FindByIdAsync(request.AccountId, ct);
+        if (account is null)
         {
             throw DomainException.CreateValidationException("An account is not found.",
                 new InvalidOperationException("An attempt to register transaction for non exiting account.", 
-                    new ArgumentException($"Invalid argument value: {accountId}.")));
+                    new ArgumentException($"Invalid argument value: {request.AccountId}.")));
         }
-
-        return accounts.First(x => x.Id == accountId);
+        
+        account.ApplyIncomingTransaction(request.TransactionType, currency);
+        Accounts.Update(account);
+        
+        await DbContext.SaveChangesAsync(ct);
     }
 }

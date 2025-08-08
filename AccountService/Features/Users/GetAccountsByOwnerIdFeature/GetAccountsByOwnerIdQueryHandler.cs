@@ -1,6 +1,8 @@
 using AccountService.Domain;
+using AccountService.Persistence.DataAccess;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Features.Users.GetAccountsByOwnerIdFeature;
 
@@ -8,13 +10,13 @@ namespace AccountService.Features.Users.GetAccountsByOwnerIdFeature;
 [UsedImplicitly]
 public sealed class GetAccountsByOwnerIdQueryHandler(
     IUserVerificator userVerificator,
-    IAccountRepository accountRepository
+    AccountServiceDbContext dbContext
     )
     : IRequestHandler<GetAccountsByOwnerIdQuery, IEnumerable<AccountByOwnerIdDto>>
 {
     private IUserVerificator UserVerificator => userVerificator;
     
-    private IAccountRepository AccountRepository => accountRepository;
+    private DbSet<Account> AccountRepository => dbContext.Accounts;
 
     public async Task<IEnumerable<AccountByOwnerIdDto>> Handle(GetAccountsByOwnerIdQuery request, CancellationToken ct)
     {
@@ -24,18 +26,13 @@ public sealed class GetAccountsByOwnerIdQueryHandler(
                 new InvalidOperationException($"User with id {request.OwnerId} does not exist in system."));
         }
         
-        var filter = new IAccountRepository.FindAccountsFilter.ByOwnerIdFilter(request.OwnerId);
-        var accounts = await AccountRepository.FindAsync(filter, ct);
-
-        return accounts
-            .Select(FromDomainToDto)
-            .ToArray();
+        return await AccountRepository
+            .WithOwnerId(request.OwnerId)
+            .Select(a => new AccountByOwnerIdDto
+            {
+                Id = a.Id,
+                CurrencyCode = a.Balance.Code.ToString()
+            })
+            .ToArrayAsync(ct);
     }
-
-    private static AccountByOwnerIdDto FromDomainToDto(Account account)
-        => new()
-        {
-            Id = account.Id,
-            CurrencyCode = account.Balance.Code.ToString()
-        };
 }

@@ -1,24 +1,23 @@
 using AccountService.Domain;
+using AccountService.Persistence.DataAccess;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Features.Accounts.GetAccountsFeature;
 
 // Resharper disable once. Class is being called via reflection.
 [UsedImplicitly]
-public sealed class GetAccountsQueryHandler(IAccountRepository accountRepository)
+public sealed class GetAccountsQueryHandler(AccountServiceDbContext dbContext)
     : IRequestHandler<GetAccountsQuery, IEnumerable<AccountDto>>
 {
-    private IAccountRepository AccountRepository => accountRepository;
+    private DbSet<Account> AccountRepository => dbContext.Accounts;
     
     public async Task<IEnumerable<AccountDto>> Handle(GetAccountsQuery request, CancellationToken ct)
     {
-        var filter = new IAccountRepository.FindAccountsFilter.EmptyFilter();
-        var accounts = await AccountRepository.FindAsync(filter, ct);
-
-        return accounts
-            .Select(FromDomainToDto)
-            .ToArray();
+        return await AccountRepository
+            .Select(a => FromDomainToDto(a))
+            .ToArrayAsync(ct);
     }
 
     private static AccountDto FromDomainToDto(Account account)
