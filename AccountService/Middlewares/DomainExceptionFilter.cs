@@ -8,27 +8,39 @@ public class DomainExceptionFilter : IMiddleware
 {
     public async Task InvokeAsync(HttpContext ctx, RequestDelegate next)
     {
+        object error;
+        HttpStatusCode responseStatusCode;
         try
         {
             await next(ctx);
+            return;
         }
         catch (DomainException e) when (e.Type == DomainException.DomainExceptionType.ExistenceError)
         {
-            ctx.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            await WriteErrorsAsJsonAsync(ctx, e.Message);
+            responseStatusCode = HttpStatusCode.NotFound;
+            error = e.Message;
         }
         catch (DomainException e) when (e.Type == DomainException.DomainExceptionType.ValidationError)
         {
-            ctx.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            
-            await WriteErrorsAsJsonAsync(ctx, e.Message);
+            responseStatusCode = HttpStatusCode.BadRequest;
+            error = e.Message;
         }
+        catch (DomainException e) when (e.Type == DomainException.DomainExceptionType.ConcurrencyError)
+        {
+            responseStatusCode = HttpStatusCode.Conflict;
+            error = e.Message;
+        }
+
+        await WriteErrorsAsJsonAsync(ctx, responseStatusCode, error);
     }
 
-    private static Task WriteErrorsAsJsonAsync<TError>(HttpContext ctx, TError errors)
+    private static Task WriteErrorsAsJsonAsync<TError>(HttpContext ctx, HttpStatusCode statusCode, TError errors)
     {
+        ctx.Response.StatusCode = (int)statusCode;
         ctx.Response.ContentType = "application/json";
+        
         var error = MbResultWithError<TError>.Fail(errors);
+        
         return ctx.Response.WriteAsJsonAsync(error);
     }
 }

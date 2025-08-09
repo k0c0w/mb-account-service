@@ -4,7 +4,7 @@ using MediatR;
 
 namespace AccountService.Features.Accounts.CreateNewAccountFeature;
 
-public sealed record CreateNewAccountCommand : IRequest<CreatedAccountDto>
+public sealed record CreateNewAccountCommand : IRequest<CreatedAccountDto>, ITransactionalRequest
 {
     /// <summary>
     /// An account owner identity

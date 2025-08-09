@@ -3,7 +3,7 @@ using MediatR;
 
 namespace AccountService.Features.Transfers.TransferMoneyFeature;
 
-public sealed record TransferMoneyCommand : IRequest
+public sealed record TransferMoneyCommand : IRequest, ITransactionalRequest
 {
     /// <summary>
     /// Sender account identity

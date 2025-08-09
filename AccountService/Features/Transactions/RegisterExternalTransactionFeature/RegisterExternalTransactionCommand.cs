@@ -4,7 +4,7 @@ using MediatR;
 
 namespace AccountService.Features.Transactions.RegisterExternalTransactionFeature;
 
-public sealed record RegisterExternalTransactionCommand : IRequest
+public sealed record RegisterExternalTransactionCommand : IRequest, ITransactionalRequest
 {
     /// <summary>
     /// Identity of account which this transaction will be applied to
