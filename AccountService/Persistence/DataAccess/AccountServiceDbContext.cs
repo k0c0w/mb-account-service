@@ -80,10 +80,12 @@ public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbCon
             .IsRequired()
             .IsConcurrencyToken();
 
-        b.Ignore(a => a.TransactionHistory);
-        b.HasMany<Transaction>("Transactions")
+        b.HasMany<Transaction>(t => t.TransactionHistory)
             .WithOne()
             .HasForeignKey(t => t.AccountId);
+        b.Metadata
+            .FindNavigation(nameof(Account.TransactionHistory))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 
     private static void ConfigureCurrencyMapping<TEntity>(OwnedNavigationBuilder<TEntity, Currency> builder)
