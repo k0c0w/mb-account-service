@@ -13,9 +13,26 @@ services:
       - Authentication__Issuer=http://localhost:8080/realms/modulbank
       - Authentication__MetadataAddress=http://keycloak:8080/realms/modulbank/.well-known/openid-configuration
       - Authentication__RequireHttpsMetadata=false
+      - Database__ConnectionStrings=Host=db;Port=5432;Database=modulbankdb;Username=modulbankuser;Password=modulbankpass
+      - Database__MustMigrate=true
 
     depends_on:
+      - db
       - keycloak
+    networks:
+      - keycloak-network
+
+  db:
+    image: postgres
+    container_name: database
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=modulbankuser
+      - POSTGRES_PASSWORD=modulbankpass
+      - POSTGRES_DB=modulbankdb
+    volumes:
+      - db_data:/var/lib/postgresql/data
     networks:
       - keycloak-network
 
@@ -32,6 +49,9 @@ services:
       - ./realm.json:/opt/keycloak/data/import/realm.json
     networks:
       - keycloak-network
+
+volumes:
+  db_data:
 
 networks:
   keycloak-network:
