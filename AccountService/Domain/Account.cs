@@ -22,9 +22,9 @@ public class Account
     
     public DateTimeOffset ModifiedAt { get; protected set; }
     
-    public IReadOnlyList<Transaction> TransactionHistory => Transactions;
-    
-    protected List<Transaction> Transactions { get; init; }
+    public IReadOnlyList<Transaction> TransactionHistory => _transactionHistory;
+
+    private List<Transaction> _transactionHistory;
 
     private bool IsClosed => ClosingTimeUtc is not null;
     
@@ -64,7 +64,7 @@ public class Account
         ModifiedAt = CreationTimeUtc;
         Balance = new Currency(currencyCode, InitialBalance);
 
-        Transactions = [];
+        _transactionHistory = [];
     }
     
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -156,7 +156,7 @@ public class Account
     
     public decimal GetBalanceAt(DateTimeOffset time)
     {
-        return Transactions
+        return _transactionHistory
             .TakeWhile(t => t.TimeUtc <= time)
             .Aggregate(InitialBalance, (sum, transaction) =>
         {
@@ -186,7 +186,7 @@ public class Account
             money, 
             description,
             counterpartyAccountId);
-        Transactions.Add(transaction);
+        _transactionHistory.Add(transaction);
 
         Balance = new Currency(Balance.Code, Balance.Amount - money.Amount);
         ModifiedAt = DateTimeOffset.UtcNow;
@@ -199,7 +199,7 @@ public class Account
             money, 
             description,
             counterpartyAccountId);
-        Transactions.Add(transaction);
+        _transactionHistory.Add(transaction);
 
         Balance = new Currency(Balance.Code, Balance.Amount + money.Amount);
         ModifiedAt = DateTimeOffset.UtcNow;
