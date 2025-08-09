@@ -35,6 +35,7 @@ services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(currentAssembly);
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
     cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
+    cfg.AddOpenBehavior(typeof(TransactionalBehavior<,>));
 });
 
 services.AddFluentValidation(currentAssembly);

@@ -7,7 +7,8 @@ public class DomainException : Exception
     public enum DomainExceptionType
     {
         ValidationError = 1,
-        ExistenceError
+        ExistenceError,
+        ConcurrencyError
     }
 
     private DomainException(string message, DomainExceptionType type, Exception innerException)
@@ -24,5 +25,10 @@ public class DomainException : Exception
     public static DomainException CreateExistenceException(string message)
     {
         return new DomainException(message, DomainExceptionType.ExistenceError, new InvalidOperationException());
+    }
+    
+    public static DomainException CreateConcurrencyException(string message, Exception? innerException = null)
+    {
+        return new DomainException(message, DomainExceptionType.ConcurrencyError, innerException ?? new InvalidOperationException());
     }
 }
