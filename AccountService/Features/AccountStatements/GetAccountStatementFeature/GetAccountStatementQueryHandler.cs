@@ -17,7 +17,10 @@ public sealed class GetAccountStatementQueryHandler(AccountServiceDbContext dbCo
     {
         ThrowIfInvalidPeriod(request.PeriodStartUtc, request.PeriodEndUtc);
         
-        var account = await AccountRepository.FindByIdAsync(request.AccountId, ct);
+        var account = await AccountRepository
+            .Include(a => a.TransactionHistory)
+            .AsNoTracking()
+            .FindByIdAsync(request.AccountId, ct);
         if (account is null)
         {
             throw DomainException.CreateExistenceException("Account does not exists.");

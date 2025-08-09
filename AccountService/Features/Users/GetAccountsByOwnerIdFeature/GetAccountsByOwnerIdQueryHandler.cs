@@ -33,6 +33,7 @@ public sealed class GetAccountsByOwnerIdQueryHandler(
                 Id = a.Id,
                 CurrencyCode = a.Balance.Code.ToString()
             })
+            .AsNoTracking()
             .ToArrayAsync(ct);
     }
 }

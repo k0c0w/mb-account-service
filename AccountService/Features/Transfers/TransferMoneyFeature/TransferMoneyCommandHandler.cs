@@ -16,22 +16,29 @@ public class TransferMoneyCommandHandler(AccountServiceDbContext dbContext) : IR
     
     public async Task Handle(TransferMoneyCommand request, CancellationToken ct)
     {
-        var sender = await AccountRepository.FindByIdAsync(request.SenderAccountId, ct);
-        if (sender is null)
-        {
-            throw DomainException.CreateExistenceException("Sender account is not found.");
-        }
+        var sender = await GetAccountIdOrThrowNotFoundAsync(request.SenderAccountId, 
+            "Sender account is not found.", ct);
+        var recipient = await GetAccountIdOrThrowNotFoundAsync(request.RecipientAccountId, 
+            "Recipient account is not found.", ct);
         
-        var recipient = await AccountRepository.FindByIdAsync(request.RecipientAccountId, ct);
-        if (recipient is null)
-        {
-            throw DomainException.CreateExistenceException("Recipient account is not found.");
-        }
-
         var currency = new Currency(new CurrencyCode(sender.Balance.Code.Value), request.Amount);
         sender.SendMoney(recipient, currency);
         AccountRepository.UpdateRange(sender, recipient);
         
         await DbContext.SaveChangesAsync(ct);
+    }
+
+    private async Task<Account> GetAccountIdOrThrowNotFoundAsync(Guid id, string notFoundMessage, CancellationToken ct)
+    {
+        var account = await AccountRepository
+            .Include(a => a.TransactionHistory)
+            .FindByIdAsync(id, ct);
+        
+        if (account is null)
+        {
+            throw DomainException.CreateExistenceException(notFoundMessage);
+        }
+
+        return account;
     }
 }
