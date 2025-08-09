@@ -24,17 +24,16 @@ services:
 
   db:
     image: postgres
-    container_name: database
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_USER=modulbankuser
       - POSTGRES_PASSWORD=modulbankpass
-      - POSTGRES_DB=modulbankdb
-    volumes:
-      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     networks:
       - keycloak-network
+    configs:
+      - source: init-sql
+        target: /docker-entrypoint-initdb.d/init.sql
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.3.2
@@ -52,6 +51,15 @@ services:
 
 volumes:
   db_data:
+
+configs:
+  init-sql:
+    content: |
+      CREATE DATABASE modulbankdb;
+      CREATE DATABASE hangfiredb;
+      -- You can add more setup here
+      -- CREATE USER extrauser WITH PASSWORD 'password';
+      -- GRANT ALL PRIVILEGES ON DATABASE hangfiredb TO extrauser;
 
 networks:
   keycloak-network:

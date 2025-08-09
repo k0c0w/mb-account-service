@@ -3,6 +3,7 @@ using AccountService.Authentication;
 using AccountService.Domain;
 using AccountService.Middlewares;
 using AccountService.Persistence.DataAccess;
+using AccountService.Persistence.Jobs;
 using AccountService.Persistence.Services;
 using AccountService.PipelineBehaviours;
 using AccountService.Swagger;
@@ -24,8 +25,11 @@ services.AddAllFromAssembly(currentAssembly);
 
 services.AddSingleton<IUserVerificator, UserVerificator>();
 services.AddSingleton<ICurrencyVerificator, CurrencyVerificator>();
+services.AddScoped<IAccountInterestRewarder, AccountInterestRewarder>();
 services.AddDbContext<AccountServiceDbContext>(
     cfg => cfg.UseNpgsql(dbConfig.GetValue<string>("ConnectionString")));
+
+services.AddJobs(builder.Configuration.GetConnectionString("Hangfire")??throw new ArgumentException());
 
 services.AddCors();
 services.AddJwt(builder.Configuration);
