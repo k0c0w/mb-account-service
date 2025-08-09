@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Persistence.Services;
 
-public class AccountInterestAwarder(AccountServiceDbContext dbContext) : IAccountInterestAwarder
+public class AccountInterestRewarder(AccountServiceDbContext dbContext) : IAccountInterestRewarder
 {
     public async Task AccrueInterestAsync(Guid accountId, CancellationToken ct = default)
     {
