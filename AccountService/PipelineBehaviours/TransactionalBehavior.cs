@@ -10,7 +10,7 @@ namespace AccountService.PipelineBehaviours;
 
 public class TransactionalBehavior<TRequest,TResponse>(AccountServiceDbContext dbContext)
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+    where TRequest : IBaseRequest
 {
     private DatabaseFacade Db => dbContext.Database;
     
