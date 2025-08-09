@@ -45,7 +45,10 @@ public class RegisterExternalTransactionCommandHandler(
 
         var currency = new Currency(currencyCode, request.Amount);
 
-        var account = await Accounts.FindByIdAsync(request.AccountId, ct);
+        var account = await Accounts
+            .Include(a => a.TransactionHistory)
+            .FindByIdAsync(request.AccountId, ct);
+        
         if (account is null)
         {
             throw DomainException.CreateValidationException("An account is not found.",

@@ -17,6 +17,7 @@ public sealed class GetAccountsQueryHandler(AccountServiceDbContext dbContext)
     {
         return await AccountRepository
             .Select(a => FromDomainToDto(a))
+            .AsNoTracking()
             .ToArrayAsync(ct);
     }
 
