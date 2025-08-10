@@ -15,6 +15,7 @@ services:
       - Authentication__RequireHttpsMetadata=false
       - Database__ConnectionStrings=Host=db;Port=5432;Database=modulbankdb;Username=modulbankuser;Password=modulbankpass
       - Database__MustMigrate=true
+      - ConnectionStrings__Hangfire="Host=db;Port=5432;Database=hangfiredb;Username=modulbankuser;Password=modulbankpass"
 
     depends_on:
       - db
