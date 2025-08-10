@@ -17,11 +17,13 @@ public class TransactionsController : ControllerBase
     /// </remarks>
     /// <response code="200">Transaction has been registered successfully</response>
     /// <response code="400">Invalid transaction or account state</response>
+    /// <response code="409">The transaction was aborted due to data inconsistency</response>
     /// <response code="500">Some unhandled error</response>
     [HttpPost("")]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status500InternalServerError)]
     public async Task<IResult> RegisterIncomingTransactionAsync(
         [FromBody] RegisterExternalTransactionCommand request,
