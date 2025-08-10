@@ -8,6 +8,7 @@ using AccountService.Persistence.Services;
 using AccountService.PipelineBehaviours;
 using AccountService.Swagger;
 using AccountService.Validation;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,11 +26,13 @@ services.AddAllFromAssembly(currentAssembly);
 
 services.AddSingleton<IUserVerificator, UserVerificator>();
 services.AddSingleton<ICurrencyVerificator, CurrencyVerificator>();
-services.AddScoped<IAccountInterestRewarder, AccountInterestRewarder>();
-services.AddDbContext<AccountServiceDbContext>(
+services.AddTransient<IAccountInterestRewarder, AccountInterestRewarder>();
+services.AddDbContextFactory<AccountServiceDbContext>(
     cfg => cfg.UseNpgsql(dbConfig.GetValue<string>("ConnectionString")));
+services.AddScoped<AccountServiceDbContext>(sp =>
+    sp.GetRequiredService<IDbContextFactory<AccountServiceDbContext>>().CreateDbContext());
 
-services.AddJobs(builder.Configuration.GetConnectionString("Hangfire")??throw new ArgumentException());
+services.AddHangfire(builder.Configuration.GetConnectionString("Hangfire")??throw new ArgumentException());
 
 services.AddCors();
 services.AddJwt(builder.Configuration);
@@ -50,6 +53,8 @@ if (dbConfig.GetValue<bool>("MustMigrate"))
 {
     InProcessMigrator.ApplyMigrations(app.Services);
 }
+
+app.UseHangfireJobs();
 
 app.MapOpenApi();
 app.UseSwaggerAndSwaggerUi(builder.Configuration);

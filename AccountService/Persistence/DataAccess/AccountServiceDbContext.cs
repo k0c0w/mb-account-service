@@ -84,7 +84,7 @@ public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbCon
             .WithOne()
             .HasForeignKey(t => t.AccountId);
         b.Metadata
-            .FindNavigation(nameof(Account.TransactionHistory))!
+            .FindNavigation(nameof(Account.TransactionHistory))?
             .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 
