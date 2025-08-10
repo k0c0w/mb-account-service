@@ -1,3 +1,4 @@
+using System.Net;
 using AccountService.Features;
 using JetBrains.Annotations;
 using Microsoft.OpenApi.Models;
@@ -11,23 +12,23 @@ internal sealed class AddDefaultResponsesFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        Add500StatusCodeSchema(operation, context);
-
+        AddSchema(HttpStatusCode.InternalServerError, "Internal Server Error", operation, context);
+        AddSchema(HttpStatusCode.Unauthorized, "Unauthorized Access", operation, context);
+        AddSchema(HttpStatusCode.Conflict, "Concurrency Conflict", operation, context);
     }
 
-    private static void Add500StatusCodeSchema(OpenApiOperation operation, OperationFilterContext context)
+    private static void AddSchema(HttpStatusCode statusCode, string description, OpenApiOperation operation, OperationFilterContext context)
     {
-        const string statusCode = "500";
-        const string description = "Internal Server Error";
-
-        if (operation.Responses.ContainsKey(statusCode))
+        var statusCodeString = ((int)statusCode).ToString();
+        
+        if (operation.Responses.ContainsKey(statusCodeString))
         {
             return;
         }
         var errorSchema = context.SchemaGenerator.GenerateSchema(
             typeof(MbResult<string>), context.SchemaRepository);
 
-        operation.Responses.Add(statusCode, new OpenApiResponse
+        operation.Responses.Add(statusCodeString, new OpenApiResponse
         {
             Description = description,
             Content = new Dictionary<string, OpenApiMediaType>

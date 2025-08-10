@@ -1,5 +1,3 @@
 namespace AccountService.Features;
 
-public interface ITransactionalRequest
-{
-}
+public interface ITransactionalRequest {}

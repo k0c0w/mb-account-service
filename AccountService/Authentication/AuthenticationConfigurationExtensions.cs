@@ -6,16 +6,17 @@ namespace AccountService.Authentication;
 
 public static class AuthenticationConfigurationExtensions
 {
+    
     public static void Use401ResponseFormatter(this IApplicationBuilder app)
     {
-        const string message = "Unauthorized access. Please provide a valid token.";
+        const string unauthorizedMessage = "Unauthorized access. Please provide a valid token.";
         app.Use(async (context, next) =>
         {
             await next();
             if (context.Response.StatusCode == 401)
             {
                 context.Response.ContentType = "application/json";
-                var error = MbResultWithError<string>.Fail(message);
+                var error = MbResultWithError<string>.Fail(unauthorizedMessage);
                 await context.Response.WriteAsJsonAsync(error);
             }
         });

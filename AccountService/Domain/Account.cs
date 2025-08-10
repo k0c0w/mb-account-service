@@ -24,7 +24,7 @@ public class Account
     
     public IReadOnlyList<Transaction> TransactionHistory => _transactionHistory;
 
-    private List<Transaction> _transactionHistory;
+    private readonly List<Transaction> _transactionHistory;
 
     private bool IsClosed => ClosingTimeUtc is not null;
     

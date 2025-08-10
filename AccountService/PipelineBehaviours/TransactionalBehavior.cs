@@ -12,10 +12,13 @@ public class TransactionalBehavior<TRequest,TResponse>(AccountServiceDbContext d
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IBaseRequest
 {
+    
     private DatabaseFacade Db => dbContext.Database;
     
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
     {     
+        const string transactionAbortedMessage = "Data inconsistency. Transaction was aborted.";
+
         if (request is not ITransactionalRequest || Db.CurrentTransaction is not null)
         {
             return await next(ct);
@@ -33,9 +36,7 @@ public class TransactionalBehavior<TRequest,TResponse>(AccountServiceDbContext d
         {
             await transaction.RollbackAsync(ct);
             
-            throw DomainException.CreateConcurrencyException(
-                "Data inconsistency. Transaction was aborted.",
-                ex);
+            throw DomainException.CreateConcurrencyException(transactionAbortedMessage, ex);
         }
         catch
         {
