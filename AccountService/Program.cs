@@ -8,7 +8,6 @@ using AccountService.Persistence.Services;
 using AccountService.PipelineBehaviours;
 using AccountService.Swagger;
 using AccountService.Validation;
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +21,7 @@ services.AddSwagger(builder.Configuration);
 services.AddControllers();
 services.AddLogging(cfg => cfg.AddConsole());
 services.AddMemoryCache();
-services.AddAllFromAssembly(currentAssembly);
+services.AddMiddlewaresFromAssembly(currentAssembly);
 
 services.AddSingleton<IUserVerificator, UserVerificator>();
 services.AddSingleton<ICurrencyVerificator, CurrencyVerificator>();
