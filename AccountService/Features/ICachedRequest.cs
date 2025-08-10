@@ -1,7 +1,11 @@
+using MediatR;
 
 namespace AccountService.Features;
 
-public interface ICachedRequest
+/// <summary>
+/// Marker interface to mark commands which results should be cached
+/// </summary>
+public interface ICachedRequest : IBaseRequest
 {
     string CacheKey { get; }
     TimeSpan? AbsoluteExpirationRelativeToNow { get; }

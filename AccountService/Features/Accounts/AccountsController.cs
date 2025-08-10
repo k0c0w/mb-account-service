@@ -60,11 +60,13 @@ public class AccountsController : ControllerBase
     /// <response code="204">Account has been updated successfully</response>
     /// <response code="400">Invalid argument met or account can not be updated</response>
     /// <response code="404">The account does not exist</response>
+    /// <response code="409">The account has been modified already</response>
     /// <response code="500">Some unhandled error</response>
     [HttpPatch("{id:guid}/interest-rate")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MbResult<string>),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<string>),StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status500InternalServerError)]
     public async Task<IResult> ChangeInterestRateAsync(
         [FromRoute] Guid id, 
@@ -83,11 +85,13 @@ public class AccountsController : ControllerBase
     /// <response code="204">Account has been closed and deleted successfully</response>
     /// <response code="400">Invalid argument met or account can not be deleted</response>
     /// <response code="404">The account does not exist</response>
+    /// <response code="409">The account has been modified already</response>
     /// <response code="500">Some unhandled error</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MbResult<string>),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<string>),StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status500InternalServerError)]
     public async Task<IResult> RemoveAccountAsync([FromRoute] Guid id, 
     [FromServices] IMediator mediator)
