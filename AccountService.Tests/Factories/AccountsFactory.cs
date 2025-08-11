@@ -1,0 +1,134 @@
+using System.Reflection;
+using AccountService.Domain;
+using Bogus;
+
+namespace AccountService.Tests.Factories;
+
+public static class AccountsFactory
+{
+    private static readonly Faker Faker = new();
+
+    public static Account CreateAccount(
+        AccountType accountType,
+        decimal balance,
+        Guid? ownerId = null,
+        Guid? accountId = null,
+        CurrencyCode? currencyCode = null,
+        DateTimeOffset? creationTime = null,
+        AccountInterestRate? interestRate = null,
+        DateTimeOffset? closeTimeUtc = null)
+    {
+        ownerId ??= Guid.CreateVersion7();
+        accountId ??= Guid.CreateVersion7();
+        var code = currencyCode ?? new CurrencyCode(Faker.Finance.Currency().Code);
+        var createdAt = creationTime ?? Faker.Date.RecentOffset(30);
+        var rate = accountType == AccountType.Checking
+            ? null
+            : interestRate ?? new AccountInterestRate(Faker.Random.Decimal(0.01m, 0.15m));
+
+        // Создаем Account через рефлексию
+#pragma warning disable CS8600 // Приведение null к not-nullable
+        var account = (Account)Activator.CreateInstance(
+            typeof(Account),
+            BindingFlags.Instance | BindingFlags.NonPublic,
+            null,
+            null,
+            null
+        ) ?? throw new InvalidOperationException();
+#pragma warning restore CS8600
+
+        SetProperty(account, nameof(Account.Id), accountId);
+        SetProperty(account, nameof(Account.OwnerId), ownerId);
+        SetProperty(account, nameof(Account.Type), accountType);
+        SetProperty(account, nameof(Account.InterestRate), rate);
+        SetProperty(account, nameof(Account.CreationTimeUtc), createdAt);
+
+        var txHistory = new List<Transaction>();
+        SetField(account, "_transactionHistory", txHistory);
+
+        var effectiveCloseTime = closeTimeUtc;
+
+        DateTimeOffset txTime;
+        if (effectiveCloseTime.HasValue)
+        {
+            if (createdAt > effectiveCloseTime.Value)
+            {
+                throw new ArgumentException($"{nameof(creationTime)} cannot be after {nameof(closeTimeUtc)}");
+            }
+
+            var maxTxTime = effectiveCloseTime.Value.AddMinutes(-1);
+            txTime = Faker.Date.BetweenOffset(createdAt, maxTxTime);
+        }
+        else
+        {
+            txTime = createdAt.AddMinutes(Faker.Random.Int(0, 1440));
+        }
+
+        var transactionsToCreate = balance > 0 && effectiveCloseTime == null ? Faker.Random.Int(1, 2) : 1;
+
+        decimal remainingBalance = balance;
+
+        for (var i = 0; i < transactionsToCreate; i++)
+        {
+            var txAmount = (i == transactionsToCreate - 1)
+                ? remainingBalance
+                : Faker.Random.Decimal(0.01m, remainingBalance);
+            remainingBalance -= txAmount;
+
+#pragma warning disable CS8600
+            var tx = (Transaction)Activator.CreateInstance(
+                typeof(Transaction),
+                BindingFlags.Instance | BindingFlags.Public,
+                null,
+                [accountId, TransactionType.Debit, new Currency(code, txAmount), Faker.Lorem.Sentence(), null],
+                null
+            ) ?? throw new InvalidOperationException();
+#pragma warning restore CS8600
+
+            SetProperty(tx, nameof(Transaction.TimeUtc), txTime);
+
+            txHistory.Add(tx);
+        }
+
+        var computedBalance = effectiveCloseTime.HasValue ? decimal.Zero : txHistory.Sum(t => t.Amount.Amount);
+
+        SetProperty(account, nameof(Account.Balance), new Currency(code, computedBalance));
+
+        var modifiedAt = effectiveCloseTime ?? txHistory.Max(t => t.TimeUtc);
+        SetProperty(account, nameof(Account.ModifiedAt), modifiedAt);
+
+        if (effectiveCloseTime.HasValue)
+        {
+            SetProperty(account, nameof(Account.ClosingTimeUtc), effectiveCloseTime.Value);
+        }
+
+        return account;
+    }
+
+    private static void SetProperty<T>(object obj, string propName, T value)
+    {
+        var type = obj.GetType();
+        var prop = type.GetProperty(propName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+        if (prop?.SetMethod != null)
+        {
+            prop.SetValue(obj, value);
+        }
+        else
+        {
+            var backingField = type.GetField($"<{propName}>k__BackingField",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            if (backingField == null)
+                throw new InvalidOperationException($"Neither setter nor backing field found for {propName}");
+            backingField.SetValue(obj, value);
+        }
+    }
+
+    private static void SetField<T>(object obj, string fieldName, T value)
+    {
+        var field = obj.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+        if (field == null)
+            throw new InvalidOperationException($"Field {fieldName} not found on {obj.GetType().Name}");
+        field.SetValue(obj, value);
+    }
+}

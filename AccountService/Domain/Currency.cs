@@ -8,7 +8,7 @@ public sealed record Currency
 
     public Currency(CurrencyCode code, decimal amount)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(amount, nameof(amount));
+        ArgumentOutOfRangeException.ThrowIfLessThan(amount, 0m, nameof(amount));
 
         Code = code;
         Amount = amount;

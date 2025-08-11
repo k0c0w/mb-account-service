@@ -73,7 +73,6 @@ public class Account
     protected Account() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-
     public void Close()
     {
         if (IsClosed)
@@ -91,6 +90,7 @@ public class Account
         }
         
         ClosingTimeUtc = DateTimeOffset.UtcNow;
+        ModifiedAt = ClosingTimeUtc.Value;
     }
 
     public void ChangeInterestRate(AccountInterestRate interestRate)
@@ -107,6 +107,14 @@ public class Account
 
     public void SendMoney(Account recipient, Currency money)
     {
+        if (this == recipient || Id == recipient.Id)
+        {
+            throw DomainException.CreateValidationException(
+                "Can not funds the same account.",
+                new ArgumentException($"An attempt to send money to same account with Id {Id}.")
+            );
+        }
+        
         if (IsClosed)
         {
             throw DomainException.CreateValidationException(
@@ -141,6 +149,13 @@ public class Account
             var invOpMessage = $"An attempt to apply incoming transaction, but currencies did not match: {money.Code} != {Balance.Code}.";
             throw DomainException.CreateValidationException("Account has another currency type.", 
                 new InvalidOperationException(invOpMessage));
+        }
+        
+        if (IsClosed)
+        {
+            throw DomainException.CreateValidationException(
+                "Account is already closed.", 
+                new InvalidOperationException($"An attempt to perform operation with account {Id}, but {Id} is already closed at {ClosingTimeUtc}."));
         }
 
         if (transactionType == TransactionType.Credit)
