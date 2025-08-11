@@ -4,10 +4,8 @@ namespace AccountService.Tests;
 
 public class TestsBase
 {
-    private static readonly Faker FakerInstance = new ();
-    
-    public Faker Faker => FakerInstance;
+    private static Faker Faker { get; } = new();
 
-    public TEnum PickRandom<TEnum>(params TEnum[] exclude) where TEnum : struct, Enum
-        => Faker.Random.Enum<TEnum>();
+    protected static TEnum PickRandom<TEnum>(params TEnum[] exclude) where TEnum : struct, Enum
+        => Faker.Random.Enum(exclude);
 }
