@@ -8,6 +8,7 @@ using AccountService.Middlewares;
 using AccountService.Persistence;
 using AccountService.Persistence.Services;
 using AccountService.Swagger;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,11 +34,13 @@ services.AddDbContextFactory<AccountServiceDbContext>(
 services.AddScoped<AccountServiceDbContext>(sp =>
     sp.GetRequiredService<IDbContextFactory<AccountServiceDbContext>>().CreateDbContext());
 
-services.AddHangfire(builder.Configuration.GetConnectionString("Hangfire")??throw new ArgumentException());
+if (builder.Environment.EnvironmentName != "Testing")
+{
+    services.AddHangfire(builder.Configuration.GetConnectionString("Hangfire")??throw new ArgumentException());
+}
 
 services.AddCors();
 services.AddJwt(builder.Configuration);
-
 
 var app = builder.Build();
 
@@ -46,7 +49,10 @@ if (dbConfig.GetValue<bool>("MustMigrate"))
     InProcessMigrator.ApplyMigrations(app.Services);
 }
 
-app.UseHangfireJobs();
+if (builder.Environment.EnvironmentName != "Testing")
+{
+    app.UseHangfireJobs();
+}
 
 app.MapOpenApi();
 app.UseSwaggerAndSwaggerUi(builder.Configuration);
@@ -69,3 +75,7 @@ app.MapControllers()
     .RequireAuthorization();
 
 app.Run();
+
+// used by testing
+[UsedImplicitly]
+public partial class Program;
