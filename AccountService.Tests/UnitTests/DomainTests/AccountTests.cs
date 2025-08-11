@@ -1,4 +1,4 @@
-using AccountService.Domain;
+using AccountService.Features.Domain;
 using AccountService.Tests.Factories;
 
 namespace AccountService.Tests.UnitTests.DomainTests;

@@ -1,5 +1,5 @@
 using System.Reflection;
-using AccountService.Domain;
+using AccountService.Features.Domain;
 using Bogus;
 
 namespace AccountService.Tests.Factories;
@@ -46,17 +46,15 @@ public static class AccountsFactory
         var txHistory = new List<Transaction>();
         SetField(account, "_transactionHistory", txHistory);
 
-        var effectiveCloseTime = closeTimeUtc;
-
         DateTimeOffset txTime;
-        if (effectiveCloseTime.HasValue)
+        if (closeTimeUtc.HasValue)
         {
-            if (createdAt > effectiveCloseTime.Value)
+            if (createdAt > closeTimeUtc.Value)
             {
                 throw new ArgumentException($"{nameof(creationTime)} cannot be after {nameof(closeTimeUtc)}");
             }
 
-            var maxTxTime = effectiveCloseTime.Value.AddMinutes(-1);
+            var maxTxTime = closeTimeUtc.Value.AddMinutes(-1);
             txTime = Faker.Date.BetweenOffset(createdAt, maxTxTime);
         }
         else
@@ -64,13 +62,13 @@ public static class AccountsFactory
             txTime = createdAt.AddMinutes(Faker.Random.Int(0, 1440));
         }
 
-        var transactionsToCreate = balance > 0 && effectiveCloseTime == null ? Faker.Random.Int(1, 2) : 1;
+        var transactionsToCreate = balance > 0 && closeTimeUtc == null ? Faker.Random.Int(1, 2) : 1;
 
-        decimal remainingBalance = balance;
+        var remainingBalance = balance;
 
         for (var i = 0; i < transactionsToCreate; i++)
         {
-            var txAmount = (i == transactionsToCreate - 1)
+            var txAmount = i == transactionsToCreate - 1
                 ? remainingBalance
                 : Faker.Random.Decimal(0.01m, remainingBalance);
             remainingBalance -= txAmount;
@@ -90,16 +88,16 @@ public static class AccountsFactory
             txHistory.Add(tx);
         }
 
-        var computedBalance = effectiveCloseTime.HasValue ? decimal.Zero : txHistory.Sum(t => t.Amount.Amount);
+        var computedBalance = closeTimeUtc.HasValue ? decimal.Zero : txHistory.Sum(t => t.Amount.Amount);
 
         SetProperty(account, nameof(Account.Balance), new Currency(code, computedBalance));
 
-        var modifiedAt = effectiveCloseTime ?? txHistory.Max(t => t.TimeUtc);
+        var modifiedAt = closeTimeUtc ?? txHistory.Max(t => t.TimeUtc);
         SetProperty(account, nameof(Account.ModifiedAt), modifiedAt);
 
-        if (effectiveCloseTime.HasValue)
+        if (closeTimeUtc.HasValue)
         {
-            SetProperty(account, nameof(Account.ClosingTimeUtc), effectiveCloseTime.Value);
+            SetProperty(account, nameof(Account.ClosingTimeUtc), closeTimeUtc.Value);
         }
 
         return account;

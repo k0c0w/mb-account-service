@@ -1,13 +1,13 @@
 using System.Reflection;
 using AccountService.Authentication;
-using AccountService.Domain;
+using AccountService.Features;
+using AccountService.Features.DataAccess;
+using AccountService.Features.Domain;
+using AccountService.Jobs;
 using AccountService.Middlewares;
-using AccountService.Persistence.DataAccess;
-using AccountService.Persistence.Jobs;
+using AccountService.Persistence;
 using AccountService.Persistence.Services;
-using AccountService.PipelineBehaviours;
 using AccountService.Swagger;
-using AccountService.Validation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,9 +23,11 @@ services.AddLogging(cfg => cfg.AddConsole());
 services.AddMemoryCache();
 services.AddMiddlewaresFromAssembly(currentAssembly);
 
-services.AddSingleton<IUserVerificator, UserVerificator>();
-services.AddSingleton<ICurrencyVerificator, CurrencyVerificator>();
-services.AddTransient<IAccountInterestRewarder, AccountInterestRewarder>();
+services.AddSingleton<IUserValidator, UserValidator>()
+        .AddSingleton<ICurrencyValidator, CurrencyValidator>()
+        .AddTransient<IAccountInterestRewarder, AccountInterestRewarder>()
+        .AddFeatures();
+
 services.AddDbContextFactory<AccountServiceDbContext>(
     cfg => cfg.UseNpgsql(dbConfig.GetValue<string>("ConnectionString")));
 services.AddScoped<AccountServiceDbContext>(sp =>
@@ -36,15 +38,6 @@ services.AddHangfire(builder.Configuration.GetConnectionString("Hangfire")??thro
 services.AddCors();
 services.AddJwt(builder.Configuration);
 
-services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(currentAssembly);
-    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-    cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
-    cfg.AddOpenBehavior(typeof(TransactionalBehavior<,>));
-});
-
-services.AddFluentValidation(currentAssembly);
 
 var app = builder.Build();
 

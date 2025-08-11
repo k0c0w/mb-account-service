@@ -1,6 +1,6 @@
 using System.Net;
-using AccountService.Domain;
 using AccountService.Features;
+using AccountService.Features.Domain;
 
 namespace AccountService.Middlewares;
 
