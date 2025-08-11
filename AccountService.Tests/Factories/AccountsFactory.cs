@@ -21,13 +21,12 @@ public static class AccountsFactory
         ownerId ??= Guid.CreateVersion7();
         accountId ??= Guid.CreateVersion7();
         var code = currencyCode ?? new CurrencyCode(Faker.Finance.Currency().Code);
-        var createdAt = creationTime ?? Faker.Date.RecentOffset(30);
+        var createdAt = (creationTime ?? Faker.Date.RecentOffset(30)).Date.ToUniversalTime();
         var rate = accountType == AccountType.Checking
             ? null
             : interestRate ?? new AccountInterestRate(Faker.Random.Decimal(0.01m, 0.15m));
 
-        // Создаем Account через рефлексию
-#pragma warning disable CS8600 // Приведение null к not-nullable
+#pragma warning disable CS8600
         var account = (Account)Activator.CreateInstance(
             typeof(Account),
             BindingFlags.Instance | BindingFlags.NonPublic,
@@ -41,7 +40,7 @@ public static class AccountsFactory
         SetProperty(account, nameof(Account.OwnerId), ownerId);
         SetProperty(account, nameof(Account.Type), accountType);
         SetProperty(account, nameof(Account.InterestRate), rate);
-        SetProperty(account, nameof(Account.CreationTimeUtc), createdAt);
+        SetProperty(account, nameof(Account.CreationTimeUtc), new DateTimeOffset(createdAt));
 
         var txHistory = new List<Transaction>();
         SetField(account, "_transactionHistory", txHistory);
@@ -55,11 +54,11 @@ public static class AccountsFactory
             }
 
             var maxTxTime = closeTimeUtc.Value.AddMinutes(-1);
-            txTime = Faker.Date.BetweenOffset(createdAt, maxTxTime);
+            txTime = Faker.Date.BetweenOffset(createdAt, maxTxTime).UtcDateTime;
         }
         else
         {
-            txTime = createdAt.AddMinutes(Faker.Random.Int(0, 1440));
+            txTime = createdAt.AddMinutes(Faker.Random.Int(0, 1440)).ToUniversalTime();
         }
 
         var transactionsToCreate = balance > 0 && closeTimeUtc == null ? Faker.Random.Int(1, 2) : 1;
