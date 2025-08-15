@@ -3,6 +3,7 @@ using AccountService.Authentication;
 using AccountService.Features;
 using AccountService.Features.DataAccess;
 using AccountService.Features.Domain;
+using AccountService.Features.Domain.Services;
 using AccountService.Jobs;
 using AccountService.Middlewares;
 using AccountService.Persistence;

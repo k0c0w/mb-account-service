@@ -4,10 +4,9 @@ namespace AccountService.Features.Domain;
 
 public class Transaction
 {
-    // Resharper disable once. Value is used by serialization and domain.
-    [UsedImplicitly]
+    // ReSharper disable once. Value is used by serialization and domain.
     public Guid Id { get; protected init; }
-
+    
     public Guid AccountId { get;  protected init; }
 
     public Guid? CounterpartyAccountId { get;  protected init; }
@@ -16,6 +15,8 @@ public class Transaction
 
     public Currency Amount { get; protected init; }
 
+    // ReSharper disable once EntityFramework.ModelValidation.UnlimitedStringLength
+    // length is handled by domain
     public string Description { get; protected init; }
 
     public DateTimeOffset TimeUtc { get; protected init; }

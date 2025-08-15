@@ -1,5 +1,6 @@
 using AccountService.Features.DataAccess;
 using AccountService.Features.Domain;
+using AccountService.Features.Domain.Services;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 

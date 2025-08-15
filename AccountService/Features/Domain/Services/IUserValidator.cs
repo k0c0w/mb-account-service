@@ -1,4 +1,4 @@
-namespace AccountService.Features.Domain;
+namespace AccountService.Features.Domain.Services;
 
 public interface IUserValidator
 {
