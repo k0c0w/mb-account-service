@@ -20,7 +20,7 @@ public static class RabbitMqTransportConfigurationExtensions
                 o.UseBusOutbox();
             });
 
-            b.UsingRabbitMq((_, cfg) =>
+            b.UsingRabbitMq((ctx, cfg) =>
             {
                 cfg.Host(appCfg.Host, appCfg.VirtualHost, h =>
                 {
@@ -31,7 +31,8 @@ public static class RabbitMqTransportConfigurationExtensions
                 cfg.ReceiveEndpoint("account.antifraud", x =>
                 {
                     x.ConfigureConsumeTopology = false;
-                    x.Consumer<AntifraudClientStateChangedEventConsumer>();
+                    
+                    x.ConfigureConsumer<AntifraudClientStateChangedEventConsumer>(ctx);
                 });
 
                 cfg.Message<AccountOpenedEvent>(x => x.SetEntityName(appCfg.ExchangeName));

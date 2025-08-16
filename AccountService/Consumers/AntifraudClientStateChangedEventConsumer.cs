@@ -1,21 +1,34 @@
 using AccountService.Contracts.Antifraud;
+using AccountService.Features.AccountFeatures.SetClientAccountsFrozen;
 using MassTransit;
+using MediatR;
 
 namespace AccountService.Consumers;
 
-public sealed class AntifraudClientStateChangedEventConsumer : IConsumer<IClientStateChangedEvent>
+// ReSharper disable once ClassNeverInstantiated.Global
+// Consumer is started by masstransit library
+public sealed class AntifraudClientStateChangedEventConsumer(
+    ILogger<AntifraudClientStateChangedEventConsumer> logger,
+    IMediator mediator)
+    : IConsumer<IClientStateChangedEvent>
 {
-    public Task Consume(ConsumeContext<IClientStateChangedEvent> context)
+    public async Task Consume(ConsumeContext<IClientStateChangedEvent> context)
     {
+        var message = context.Message;
+        var ownerId = message.ClientId;
         var routingKey = context.RoutingKey();
-        /*
-        var work = routingKey switch
+        
+        if (routingKey == "client.blocked")
         {
-            "client.blocked" => throw new NotImplementedException(),
-            "client.unblocked" => throw new NotImplementedException(),
-            _ => throw new NotImplementedException("Put messages into inbox_dead_letters"),
-        };
-        */
-        throw new NotImplementedException("Put messages into inbox_dead_letters");
+            await mediator.Send(SetClientAccountsFrozenCommand.BlockAccounts(ownerId));
+        }
+        else if (routingKey == "client.unblocked")
+        {
+            await mediator.Send(SetClientAccountsFrozenCommand.UnblockAccounts(ownerId));
+        }
+        else
+        {
+            throw new NotImplementedException("Put messages into inbox_dead_letters");
+        }
     }
 }
