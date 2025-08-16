@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccountService.Features.DataAccess.Migrations
 {
     [DbContext(typeof(AccountServiceDbContext))]
-    [Migration("20250816201723_Account_AddStatusColumn")]
+    [Migration("20250816205349_Account_AddStatusColumn")]
     partial class Account_AddStatusColumn
     {
         /// <inheritdoc />

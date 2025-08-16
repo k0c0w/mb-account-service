@@ -7,11 +7,18 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccountService.Features.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class MassTransit_Outbox : Migration
+    public partial class Account_AddStatusColumn : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<int>(
+                name: "Status",
+                table: "Accounts",
+                type: "integer",
+                nullable: false,
+                defaultValue: 0);
+
             migrationBuilder.CreateTable(
                 name: "InboxState",
                 columns: table => new
@@ -137,6 +144,10 @@ namespace AccountService.Features.DataAccess.Migrations
 
             migrationBuilder.DropTable(
                 name: "OutboxState");
+
+            migrationBuilder.DropColumn(
+                name: "Status",
+                table: "Accounts");
         }
     }
 }
