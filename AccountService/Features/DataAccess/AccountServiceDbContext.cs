@@ -1,4 +1,5 @@
 using AccountService.Features.Domain;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,7 +12,8 @@ public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbCon
     protected override void OnModelCreating(ModelBuilder b)
     {        
         base.OnModelCreating(b);
-        
+
+        b.AddTransactionalOutboxEntities();
         ConfigureEntity(b.Entity<Account>());
         ConfigureEntity(b.Entity<Transaction>());
     }

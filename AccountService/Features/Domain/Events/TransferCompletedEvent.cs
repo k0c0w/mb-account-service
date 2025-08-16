@@ -1,7 +1,11 @@
 namespace AccountService.Features.Domain.Events;
 
-public sealed class TransferCompletedEvent : DomainEvent
+public sealed class TransferCompletedEvent : IDomainEvent
 {
+    public Guid EventId { get; } = Guid.CreateVersion7();
+    
+    public DateTimeOffset OccurredAt { get; } = DateTimeOffset.UtcNow;
+    
     public Guid SourceAccountId { get; }
     
     public Guid CreditTransactionId { get; }
@@ -37,4 +41,5 @@ public sealed class TransferCompletedEvent : DomainEvent
         Amount = transferCurrency.Amount;
         Currency = transferCurrency.Code.Value;
     }
+
 }

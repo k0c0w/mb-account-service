@@ -1,5 +1,6 @@
 using AccountService.Features.DataAccess;
 using AccountService.Features.Domain;
+using AccountService.Features.Domain.Events;
 using AccountService.Features.Domain.Services;
 using JetBrains.Annotations;
 using MediatR;
@@ -7,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Features.AccountFeatures.CreateNewAccount;
 
-// Resharper disable once. Class is being called via reflection.
+// ReSharper disable once. Class is being called via reflection.
 [UsedImplicitly]
 public sealed class CreateNewAccountHandler(
     ICurrencyValidator currencyValidator,
         IUserValidator userValidator,
-        AccountServiceDbContext dbContext
-    )
+        AccountServiceDbContext dbContext,
+        IDomainEventNotifier eventNotifier)
     : IRequestHandler<CreateNewAccountCommand, CreatedAccountDto>
 {
     private AccountServiceDbContext DbContext => dbContext;
@@ -24,6 +25,8 @@ public sealed class CreateNewAccountHandler(
     
     private IUserValidator UserValidator => userValidator;
 
+    private IDomainEventNotifier EventNotifier => eventNotifier;
+    
     public async Task<CreatedAccountDto> Handle(CreateNewAccountCommand request, CancellationToken ct)
     {
         var currencyCode = new CurrencyCode(request.CurrencyCode);
@@ -51,9 +54,9 @@ public sealed class CreateNewAccountHandler(
             ? new AccountInterestRate(request.InterestRate.Value)
             : default;
         
-        var account = new Account(request.OwnerId, currencyCode, request.AccountType, interestRate);
+        var account = await Account.CreateNewAsync(request.OwnerId, currencyCode, request.AccountType, EventNotifier,interestRate: interestRate);
         await Accounts.AddAsync(account, ct);
-
+        
         await DbContext.SaveChangesAsync(ct);
 
         return DomainToDto(account);

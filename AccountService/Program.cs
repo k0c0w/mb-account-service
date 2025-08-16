@@ -2,11 +2,12 @@ using System.Reflection;
 using AccountService.Authentication;
 using AccountService.Features;
 using AccountService.Features.DataAccess;
-using AccountService.Features.Domain;
+using AccountService.Features.Domain.Events;
 using AccountService.Features.Domain.Services;
 using AccountService.Jobs;
 using AccountService.Middlewares;
 using AccountService.Persistence;
+using AccountService.Persistence.RabbitMq;
 using AccountService.Persistence.Services;
 using AccountService.Swagger;
 using JetBrains.Annotations;
@@ -16,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var currentAssembly = Assembly.GetExecutingAssembly();
 var dbConfig = builder.Configuration.GetRequiredSection("Database");
+var rabbitCfg = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqConfig?>() ?? throw new ArgumentException();
 
 services.AddOpenApi();
 services.AddSwagger(builder.Configuration);
@@ -34,6 +36,9 @@ services.AddDbContextFactory<AccountServiceDbContext>(
     cfg => cfg.UseNpgsql(dbConfig.GetValue<string>("ConnectionString")));
 services.AddScoped<AccountServiceDbContext>(sp =>
     sp.GetRequiredService<IDbContextFactory<AccountServiceDbContext>>().CreateDbContext());
+
+services.AddMasstransitOverRabbitMq(rabbitCfg)
+    .AddScoped<IDomainEventNotifier, DomainEventsNotifier>();
 
 if (builder.Environment.EnvironmentName != "Testing")
 {

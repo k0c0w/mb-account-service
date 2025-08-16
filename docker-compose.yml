@@ -20,8 +20,9 @@ services:
     depends_on:
       - db
       - keycloak
+      - bus
     networks:
-      - keycloak-network
+      - network
 
   db:
     image: postgres
@@ -31,7 +32,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - keycloak-network
+      - network
     configs:
       - source: init-sql
         target: /docker-entrypoint-initdb.d/init.sql
@@ -48,7 +49,42 @@ services:
     volumes:
       - ./realm.json:/opt/keycloak/data/import/realm.json
     networks:
-      - keycloak-network
+      - network
+  
+  bus:
+    image: rabbitmq:4-management
+    container_name: bus
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+    networks:
+      - network
+    command: >
+      bash -c "
+        rabbitmq-server -detached;
+        echo 'Waiting for RabbitMQ to start...';
+        until rabbitmqctl node_health_check; do
+          echo 'Still waiting...';
+          sleep 3;
+        done;
+        echo 'RabbitMQ is ready, creating topology...';
+        rabbitmqadmin --host=127.0.0.1 --port=15672 --username=guest --password=guest declare exchange name=account.events type=topic durable=true;
+        rabbitmqadmin --host=127.0.0.1 --port=15672 --username=guest --password=guest declare queue name=account.crm durable=true;
+        rabbitmqadmin --host=127.0.0.1 --port=15672 --username=guest --password=guest declare queue name=account.notifications durable=true;
+        rabbitmqadmin --host=127.0.0.1 --port=15672 --username=guest --password=guest declare queue name=account.antifraud durable=true;
+        rabbitmqadmin --host=127.0.0.1 --port=15672 --username=guest --password=guest declare queue name=account.audit durable=true;
+        rabbitmqadmin --host=127.0.0.1 --port=15672 --username=guest --password=guest declare binding source=account.events destination=account.crm destination_type=queue routing_key='account.*';
+        rabbitmqadmin --host=127.0.0.1 --port=15672 --username=guest --password=guest declare binding source=account.events destination=account.notifications destination_type=queue routing_key='money.*';
+        rabbitmqadmin --host=127.0.0.1 --port=15672 --username=guest --password=guest declare binding source=account.events destination=account.antifraud destination_type=queue routing_key='client.*';
+        rabbitmqadmin --host=127.0.0.1 --port=15672 --username=guest --password=guest declare binding source=account.events destination=account.audit destination_type=queue routing_key='#';
+        rabbitmqctl stop;
+        exec rabbitmq-server;
+      "
+
 
 volumes:
   db_data:
@@ -63,5 +99,5 @@ configs:
       -- GRANT ALL PRIVILEGES ON DATABASE hangfiredb TO extrauser;
 
 networks:
-  keycloak-network:
+  network:
     driver: bridge

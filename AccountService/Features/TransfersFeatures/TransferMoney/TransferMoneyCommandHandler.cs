@@ -1,5 +1,6 @@
 using AccountService.Features.DataAccess;
 using AccountService.Features.Domain;
+using AccountService.Features.Domain.Services;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +9,14 @@ namespace AccountService.Features.TransfersFeatures.TransferMoney;
 
 // Resharper disable once. Class is being called via reflection.
 [UsedImplicitly]
-public class TransferMoneyCommandHandler(AccountServiceDbContext dbContext) : IRequestHandler<TransferMoneyCommand>
+public class TransferMoneyCommandHandler(AccountServiceDbContext dbContext, IDomainEventNotifier eventNotifier) 
+    : IRequestHandler<TransferMoneyCommand>
 {
     private AccountServiceDbContext DbContext => dbContext;
     
     private DbSet<Account> AccountRepository => DbContext.Accounts;
+    
+    private IDomainEventNotifier EventNotifier => eventNotifier;
     
     public async Task Handle(TransferMoneyCommand request, CancellationToken ct)
     {
@@ -22,7 +26,7 @@ public class TransferMoneyCommandHandler(AccountServiceDbContext dbContext) : IR
             "Recipient account is not found.", ct);
         
         var currency = new Currency(new CurrencyCode(sender.Balance.Code.Value), request.Amount);
-        sender.SendMoney(recipient, currency);
+        await sender.SendMoneyAsync(recipient, currency, eventNotifier: eventNotifier);
         AccountRepository.UpdateRange(sender, recipient);
         
         await DbContext.SaveChangesAsync(ct);

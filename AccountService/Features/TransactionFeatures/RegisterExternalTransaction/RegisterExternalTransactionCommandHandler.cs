@@ -11,7 +11,8 @@ namespace AccountService.Features.TransactionFeatures.RegisterExternalTransactio
 [UsedImplicitly]
 public class RegisterExternalTransactionCommandHandler(
     AccountServiceDbContext dbContext,
-    ICurrencyValidator currencyValidator
+    ICurrencyValidator currencyValidator,
+    IDomainEventNotifier eventNotifier
     )
     : IRequestHandler<RegisterExternalTransactionCommand>
 {
@@ -20,6 +21,8 @@ public class RegisterExternalTransactionCommandHandler(
     private DbSet<Account> Accounts => DbContext.Accounts;
     
     private ICurrencyValidator CurrencyValidator => currencyValidator;
+    
+    private IDomainEventNotifier EventNotifier => eventNotifier;
     
     public async Task Handle(RegisterExternalTransactionCommand request, CancellationToken ct)
     {
@@ -57,9 +60,9 @@ public class RegisterExternalTransactionCommandHandler(
                     new ArgumentException($"Invalid argument value: {request.AccountId}.")));
         }
         
-        account.ApplyIncomingTransaction(request.TransactionType, currency);
+        await account.ApplyIncomingTransactionAsync(request.TransactionType, currency, EventNotifier);
         Accounts.Update(account);
-        
+
         await DbContext.SaveChangesAsync(ct);
     }
 }

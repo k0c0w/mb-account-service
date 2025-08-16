@@ -1,14 +1,18 @@
 using AccountService.Features.Domain;
+using AccountService.Features.Domain.Events;
 using AccountService.Tests.Factories;
+using AccountService.Tests.Fakes;
 
 namespace AccountService.Tests.UnitTests.DomainTests;
 
 public class AccountTests : TestsBase
 {
+    private EventNotifierFake EventNotifierFake { get; } = new();
+    
     [Theory]
     [InlineData(TransactionType.Debit, 50, 0, 50)] 
     [InlineData(TransactionType.Credit, 25, 50, 25)]
-    public void ApplyIncomingTransaction_ShouldAcceptTransaction_WhenValidIncomingTransaction(
+    public async Task ApplyIncomingTransaction_ShouldAcceptTransaction_WhenValidIncomingTransaction(
         TransactionType incomingTransactionType,
         decimal transactionAmount,
         decimal startingBalance,
@@ -26,8 +30,11 @@ public class AccountTests : TestsBase
         var money = new Currency(currencyCode, transactionAmount);
         var timeBefore = DateTime.UtcNow;
 
+        var expectedEventType =
+            incomingTransactionType == TransactionType.Credit ? typeof(MoneyCreditedEvent) : typeof(MoneyDebitedEvent);
+
         // Act
-        account.ApplyIncomingTransaction(incomingTransactionType, money);
+        await account.ApplyIncomingTransactionAsync(incomingTransactionType, money, EventNotifierFake);
 
         // Assert
         Assert.Equal(expectedBalance, account.Balance.Amount);
@@ -41,10 +48,12 @@ public class AccountTests : TestsBase
         Assert.NotEqual(Guid.Empty, lastTransaction.Id);
         Assert.Equal(account.Id, lastTransaction.AccountId);
         Assert.Equal(incomingTransactionType, lastTransaction.Type);
+
+        Assert.Contains(expectedEventType, EventNotifierFake.OccuredEventsTypes);
     }
 
     [Fact]
-    public void ApplyIncomingTransaction_ShouldThrow_WhenClosed()
+    public async Task ApplyIncomingTransaction_ShouldThrow_WhenClosed()
     {
         // Arrange
         const string expectedErrMessage = "Account is already closed.";
@@ -60,12 +69,13 @@ public class AccountTests : TestsBase
         var money = new Currency(currencyCode, 50m);
         
         // Act & Assert
-        var ex = Assert.Throws<DomainException>(() => account.ApplyIncomingTransaction(TransactionType.Credit, money));
+        var ex = await Assert.ThrowsAsync<DomainException>(
+            () => account.ApplyIncomingTransactionAsync(TransactionType.Credit, money, EventNotifierFake));
         AssertDomainException(ex, expectedErrMessage, expectedErrType);
     }
     
     [Fact]
-    public void ApplyIncomingTransaction_ShouldThrow_WhenNotEnoughMoney()
+    public async Task ApplyIncomingTransaction_ShouldThrow_WhenNotEnoughMoney()
     {
         // Arrange
         const string expectedErrMessage = "Insufficient account balance.";
@@ -79,14 +89,14 @@ public class AccountTests : TestsBase
         var withdrawMoney = new Currency(currencyCode, 50m);
     
         // Act & Assert
-        var exception = Assert.Throws<DomainException>(() => 
-            zeroBalancedAccount.ApplyIncomingTransaction(TransactionType.Credit, withdrawMoney)
+        var exception = await Assert.ThrowsAsync<DomainException>(() => 
+            zeroBalancedAccount.ApplyIncomingTransactionAsync(TransactionType.Credit, withdrawMoney, EventNotifierFake)
         );
         AssertDomainException(exception, expectedErrMessage, expectedErrType);
     }
 
     [Fact]
-    public void SendMoney_ShouldThrow_WhenRecipientIsSameAccount()
+    public async Task SendMoney_ShouldThrow_WhenRecipientIsSameAccount()
     {
         // Arrange
         const string expectedErrMessage = "Can not funds the same account.";
@@ -115,12 +125,12 @@ public class AccountTests : TestsBase
         var money = new Currency(sender.Balance.Code, transactionMoney);
         
         // Act & Assert
-        var exception = Assert.Throws<DomainException>(() => sender.SendMoney(recipient, money));
+        var exception = await Assert.ThrowsAsync<DomainException>(() => sender.SendMoneyAsync(recipient, money, EventNotifierFake));
         AssertDomainException(exception, expectedErrMessage, expectedErrType);
     }
     
     [Fact]
-    public void SendMoney_ShouldSendMoney_WhenEnoughBalance()
+    public async Task SendMoney_ShouldSendMoney_WhenEnoughBalance()
     {
         // Arrange
         const decimal debitBalanceAmount = 50m;
@@ -143,15 +153,19 @@ public class AccountTests : TestsBase
         );
         
         // Act
-        sender.SendMoney(recipient, sendMoney);
+        await sender.SendMoneyAsync(recipient, sendMoney, EventNotifierFake);
         
         // Assert
         Assert.Equal(expectedABalance, sender.Balance.Amount);
         Assert.Equal(sendMoneyAmount, recipient.Balance.Amount);
+
+        Assert.Contains(typeof(MoneyCreditedEvent), EventNotifierFake.OccuredEventsTypes);
+        Assert.Contains(typeof(MoneyDebitedEvent), EventNotifierFake.OccuredEventsTypes);
+        Assert.Contains(typeof(TransferCompletedEvent), EventNotifierFake.OccuredEventsTypes);
     }
 
     [Fact]
-    public void SendMoney_ShouldThrow_WhenSenderClosed()
+    public async Task SendMoney_ShouldThrow_WhenSenderClosed()
     {
         const string expectedErrMessage = "Sender account is already closed.";
         const DomainException.DomainExceptionType expectedErrType = DomainException.DomainExceptionType.ValidationError;
@@ -171,12 +185,13 @@ public class AccountTests : TestsBase
         var sendMoney = new Currency(currencyCode, 50m);
         
         // Act & Assert
-        var ex = Assert.Throws<DomainException>(() => account.SendMoney(recipient, sendMoney));
+        var ex = await Assert.ThrowsAsync<DomainException>(
+            () => account.SendMoneyAsync(recipient, sendMoney, EventNotifierFake));
         AssertDomainException(ex, expectedErrMessage, expectedErrType);
     }
     
     [Fact]
-    public void SendMoney_ShouldThrow_WhenRecipientClosed()
+    public async Task SendMoney_ShouldThrow_WhenRecipientClosed()
     {
         const string expectedErrMessage = "Recipient is already closed.";
         const DomainException.DomainExceptionType expectedErrType = DomainException.DomainExceptionType.ValidationError;
@@ -196,12 +211,12 @@ public class AccountTests : TestsBase
         var sendMoney = new Currency(currencyCode, 50m);
         
         // Act & Assert
-        var ex = Assert.Throws<DomainException>(() => sender.SendMoney(recipient, sendMoney));
+        var ex = await Assert.ThrowsAsync<DomainException>(() => sender.SendMoneyAsync(recipient, sendMoney, EventNotifierFake));
         AssertDomainException(ex, expectedErrMessage, expectedErrType);
     }
     
     [Fact]
-    public void SendMoney_ShouldThrow_WhenNotEnoughBalance()
+    public async Task SendMoney_ShouldThrow_WhenNotEnoughBalance()
     {
         // Arrange
         const string expectedErrMessage = "Insufficient account balance.";
@@ -223,7 +238,8 @@ public class AccountTests : TestsBase
         );
         
         // Act & Assert
-        var exception = Assert.Throws<DomainException>(() => sender.SendMoney(recipient, sendMoney));
+        var exception = await Assert.ThrowsAsync<DomainException>(
+            () => sender.SendMoneyAsync(recipient, sendMoney, EventNotifierFake));
         AssertDomainException(exception, expectedErrMessage, expectedErrType);
     }
     

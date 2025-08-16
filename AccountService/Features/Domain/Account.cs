@@ -1,3 +1,5 @@
+using AccountService.Features.Domain.Events;
+using AccountService.Features.Domain.Services;
 using JetBrains.Annotations;
 
 namespace AccountService.Features.Domain;
@@ -28,7 +30,7 @@ public class Account
 
     private bool IsClosed => ClosingTimeUtc is not null;
     
-    public Account(
+    private Account(
         Guid ownerId, 
         CurrencyCode currencyCode, 
         AccountType type,
@@ -105,7 +107,7 @@ public class Account
         ModifiedAt = DateTimeOffset.UtcNow;
     }
 
-    public void SendMoney(Account recipient, Currency money)
+    public async Task SendMoneyAsync(Account recipient, Currency money, IDomainEventNotifier eventNotifier)
     {
         if (this == recipient || Id == recipient.Id)
         {
@@ -138,11 +140,16 @@ public class Account
 
         ThrowIfInsufficientBalance(money);
 
-        CreditMoney(money, "Withdraw money operation", recipient.Id);
-        recipient.DebitMoney(money, "Deposit money operation", Id);
+        await CreditMoneyAsync(money, "Withdraw money operation", eventNotifier, counterpartyAccountId: recipient.Id);
+        await recipient.DebitMoneyAsync(money, "Deposit money operation", eventNotifier, counterpartyAccountId: Id);
+
+        var senderTransaction = _transactionHistory[^1];
+        var recipientTransaction = recipient._transactionHistory[^1];
+
+        await eventNotifier.NotifyAsync(new TransferCompletedEvent(senderTransaction, recipientTransaction));
     }
 
-    public void ApplyIncomingTransaction(TransactionType transactionType, Currency money)
+    public Task ApplyIncomingTransactionAsync(TransactionType transactionType, Currency money, IDomainEventNotifier eventNotifier)
     {
         if (money.Code != Balance.Code)
         {
@@ -161,11 +168,11 @@ public class Account
         if (transactionType == TransactionType.Credit)
         {
             ThrowIfInsufficientBalance(money);
-            CreditMoney(money, "External payment operation");
+            return CreditMoneyAsync(money, "External payment operation.", eventNotifier);
         }
         else
         {
-            DebitMoney(money, "External payment operation");
+            return DebitMoneyAsync(money, "External debit operation.", eventNotifier);
         }
     }
     
@@ -194,7 +201,7 @@ public class Account
             new InvalidOperationException(invOpMessage));
     }
     
-    private void CreditMoney(Currency money, string description, Guid? counterpartyAccountId = default)
+    private Task CreditMoneyAsync(Currency money, string description, IDomainEventNotifier eventNotifier, Guid? counterpartyAccountId = default)
     {
         var transaction = new Transaction(Id, 
             TransactionType.Credit, 
@@ -205,9 +212,11 @@ public class Account
 
         Balance = new Currency(Balance.Code, Balance.Amount - money.Amount);
         ModifiedAt = DateTimeOffset.UtcNow;
+
+        return eventNotifier.NotifyAsync(new MoneyCreditedEvent(transaction));
     }
     
-    private void DebitMoney(Currency money, string description, Guid? counterpartyAccountId = default)
+    private Task DebitMoneyAsync(Currency money, string description, IDomainEventNotifier eventNotifier, Guid? counterpartyAccountId = default)
     {
         var transaction = new Transaction(Id, 
             TransactionType.Debit, 
@@ -218,5 +227,19 @@ public class Account
 
         Balance = new Currency(Balance.Code, Balance.Amount + money.Amount);
         ModifiedAt = DateTimeOffset.UtcNow;
+
+        return eventNotifier.NotifyAsync(new MoneyDebitedEvent(transaction));
+    }
+
+    public static async Task<Account> CreateNewAsync(Guid ownerId, 
+        CurrencyCode currencyCode, 
+        AccountType type,
+        IDomainEventNotifier eventNotifier,
+        AccountInterestRate? interestRate = default)
+    {
+        var account = new Account(ownerId, currencyCode, type, interestRate);
+        await eventNotifier.NotifyAsync(new AccountOpenedEvent(account));
+
+        return account;
     }
 }
