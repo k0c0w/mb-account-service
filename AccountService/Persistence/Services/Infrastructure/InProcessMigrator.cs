@@ -1,7 +1,7 @@
 using AccountService.Persistence.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
-namespace AccountService.Persistence;
+namespace AccountService.Persistence.Services.Infrastructure;
 
 public static class InProcessMigrator
 {

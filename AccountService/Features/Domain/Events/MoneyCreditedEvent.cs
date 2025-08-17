@@ -1,3 +1,5 @@
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// Data contract, properties are used
 namespace AccountService.Features.Domain.Events;
 
 public sealed class MoneyCreditedEvent : IDomainEvent
@@ -13,6 +15,8 @@ public sealed class MoneyCreditedEvent : IDomainEvent
     public Guid AccountId { get; }
     
     public DateTimeOffset OccurredAt { get; }
+    
+    public EventMeta Meta { get; }
 
     public MoneyCreditedEvent(Transaction transaction)
     {
@@ -26,5 +30,11 @@ public sealed class MoneyCreditedEvent : IDomainEvent
         OperationId = transaction.Id;
         AccountId = transaction.AccountId;
         OccurredAt = transaction.TimeUtc;
+        Meta = new EventMeta
+        {
+            Version = "v1",
+            CausationId = EventId,
+            CorrelationId = EventId
+        };
     }
 }

@@ -7,6 +7,8 @@ namespace AccountService.Persistence.Infrastructure.DataAccess;
 public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbContext> options) : DbContext(options)
 {
     public DbSet<Account> Accounts { get; init; }
+    
+    public DbSet<OutboxMessage> OutboxMessages { get; init; }
 
     protected override void OnModelCreating(ModelBuilder b)
     {        
@@ -14,8 +16,31 @@ public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbCon
 
         ConfigureEntity(b.Entity<Account>());
         ConfigureEntity(b.Entity<Transaction>());
+        ConfigureEntity(b.Entity<OutboxMessage>());
     }
 
+    private static void ConfigureEntity(EntityTypeBuilder<OutboxMessage> b)
+    {
+        b.HasKey(o => o.Id);
+        b.Property(t => t.Id)
+            .ValueGeneratedNever()
+            .IsRequired();
+
+        b.Property(o => o.Payload)
+            .IsRequired()
+            .IsUnicode();
+
+        b.Property(o => o.OccuredAtUtc)
+            .IsRequired();
+
+        b.Property(o => o.Headers)
+            .HasColumnType("jsonb");
+        
+        b.Property(o => o.Properties)
+            .HasColumnType("jsonb")
+            .IsRequired();
+    }
+    
     private static void ConfigureEntity(EntityTypeBuilder<Transaction> b)
     {
         b.HasKey(t => t.Id);

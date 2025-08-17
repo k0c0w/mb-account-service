@@ -184,10 +184,8 @@ public class Account
             ThrowIfInsufficientBalance(money);
             return CreditMoneyAsync(money, "External payment operation.", eventNotifier);
         }
-        else
-        {
-            return DebitMoneyAsync(money, "External debit operation.", eventNotifier);
-        }
+        
+        return DebitMoneyAsync(money, "External debit operation.", eventNotifier);
     }
 
     public decimal GetBalanceAt(DateTimeOffset time)

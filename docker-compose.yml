@@ -16,6 +16,12 @@ services:
       - Database__ConnectionStrings=Host=db;Port=5432;Database=modulbankdb;Username=modulbankuser;Password=modulbankpass
       - Database__MustMigrate=true
       - ConnectionStrings__Hangfire="Host=db;Port=5432;Database=hangfiredb;Username=modulbankuser;Password=modulbankpass"
+      - RabbitMq__Host=bus
+      - RabbitMq__VirtualHost=/
+      - RabbitMq__User=guest
+      - RabbitMq__Password=guest
+      - RabbitMq__Port=5672
+      - RabbitMq__ExchangeName=account.events
 
     depends_on:
       - db
@@ -31,6 +37,8 @@ services:
       - POSTGRES_PASSWORD=modulbankpass
     ports:
       - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
     networks:
       - network
     configs:
@@ -61,6 +69,8 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
 
+    volumes:
+      - bus_data:/var/lib/rabbitmq
     networks:
       - network
     command: >
@@ -85,9 +95,9 @@ services:
         exec rabbitmq-server;
       "
 
-
 volumes:
   db_data:
+  bus_data:
 
 configs:
   init-sql:

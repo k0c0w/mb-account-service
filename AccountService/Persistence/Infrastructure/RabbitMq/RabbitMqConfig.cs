@@ -1,3 +1,5 @@
+using RabbitMQ.Client;
+
 namespace AccountService.Persistence.Infrastructure.RabbitMq;
 
 // ReSharper disable once ClassNeverInstantiated.Global
@@ -5,6 +7,8 @@ namespace AccountService.Persistence.Infrastructure.RabbitMq;
 public sealed record RabbitMqConfig
 {
     public required string Host { get; init; }
+
+    public required int Port { get; init; } = 5672;
     
     public required string VirtualHost { get; init; }
     
@@ -13,4 +17,19 @@ public sealed record RabbitMqConfig
     public required string Password { get; init; }
     
     public required string ExchangeName { get; init; }
+
+    public Task<IConnection> CreateConnectionAsync()
+    {
+        var factory = new ConnectionFactory
+        {
+            Port = Port,
+            HostName = Host,
+            UserName = User,
+            Password = Password,
+            VirtualHost = VirtualHost,
+            ClientProvidedName = "account-service"
+        };
+
+        return factory.CreateConnectionAsync();
+    }
 }

@@ -1,3 +1,7 @@
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// Instantiated via reflection, Properties are used by consumers (they are data contracts)
 namespace AccountService.Features.Domain.Events;
 
 public sealed class InterestAccruedEvent : IDomainEvent
@@ -6,8 +10,10 @@ public sealed class InterestAccruedEvent : IDomainEvent
 
     public DateTimeOffset OccurredAt { get; } = DateTimeOffset.UtcNow;
     
-    public DateTimeOffset PeriodFrom { get; }
+    public EventMeta Meta { get; }
     
+    public DateTimeOffset PeriodFrom { get; }
+
     public DateTimeOffset PeriodTo { get; }
     
     public decimal Amount { get; }
@@ -35,7 +41,11 @@ public sealed class InterestAccruedEvent : IDomainEvent
         PeriodTo = to;
         Amount = amount;
         AccountId = accountId;
+        Meta = new EventMeta
+        {
+            Version = "v1",
+            CausationId = EventId,
+            CorrelationId = EventId
+        };
     }
-
-
 }

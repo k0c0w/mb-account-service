@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Features.TransfersFeatures.TransferMoney;
 
-// Resharper disable once. Class is being called via reflection.
 [UsedImplicitly]
 public class TransferMoneyCommandHandler(AccountServiceDbContext dbContext, IDomainEventNotifier eventNotifier) 
     : IRequestHandler<TransferMoneyCommand>
@@ -16,6 +15,7 @@ public class TransferMoneyCommandHandler(AccountServiceDbContext dbContext, IDom
     
     private DbSet<Account> AccountRepository => DbContext.Accounts;
     
+    // ReSharper disable once UnusedMember.Local
     private IDomainEventNotifier EventNotifier => eventNotifier;
     
     public async Task Handle(TransferMoneyCommand request, CancellationToken ct)
@@ -26,7 +26,7 @@ public class TransferMoneyCommandHandler(AccountServiceDbContext dbContext, IDom
             "Recipient account is not found.", ct);
         
         var currency = new Currency(new CurrencyCode(sender.Balance.Code.Value), request.Amount);
-        await sender.SendMoneyAsync(recipient, currency, eventNotifier: eventNotifier);
+        await sender.SendMoneyAsync(recipient, currency, eventNotifier: EventNotifier);
         AccountRepository.UpdateRange(sender, recipient);
         
         await DbContext.SaveChangesAsync(ct);

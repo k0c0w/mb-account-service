@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using AccountService.Persistence.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccountService.Persistence.Infrastructure.DataAccess.Migrations
 {
     [DbContext(typeof(AccountServiceDbContext))]
-    partial class AccountServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250817140613_Add_Table_OutboxMessage")]
+    partial class Add_Table_OutboxMessage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

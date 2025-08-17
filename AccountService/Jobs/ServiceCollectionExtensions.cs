@@ -27,5 +27,11 @@ public static class ServiceCollectionExtensions
         jobRegistry.AddOrUpdate<DailyInterestAccrualJob>(DailyInterestAccrualJob.Name, 
             j=>j.RunAsync(CancellationToken.None), 
             Cron.Daily);
+
+        const string every10Seconds = "*/10 * * * * *";
+        jobRegistry.AddOrUpdate<OutboxProcessingJob>(OutboxProcessingJob.Name,
+            o => o.RunAsync(CancellationToken.None),
+            every10Seconds
+        );
     }
 }
