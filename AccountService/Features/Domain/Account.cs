@@ -232,22 +232,11 @@ public class Account
         ModifiedAt = DateTimeOffset.UtcNow;
     }
 
-    private void ThrowIfInsufficientBalance(Currency money)
-    {
-        if (Balance.Amount - money.Amount >= decimal.Zero)
-        {
-            return;
-        }
-
-        var invOpMessage =
-            $"An attempt to credit money from account {Id} by {money.Amount}, but account has only {Balance.Amount}.";
-        throw DomainException.CreateValidationException("Insufficient account balance.",
-            new InvalidOperationException(invOpMessage));
-    }
-
     private Task CreditMoneyAsync(Currency money, string description, IDomainEventNotifier eventNotifier,
         Guid? counterpartyAccountId = default)
     {
+        ThrowIfAccountFrozen();
+        
         var transaction = new Transaction(Id,
             TransactionType.Credit,
             money,
@@ -265,11 +254,7 @@ public class Account
     private Task DebitMoneyAsync(Currency money, string description, IDomainEventNotifier eventNotifier,
         Guid? counterpartyAccountId = default)
     {
-        if (Status == AccountStatus.Frozen)
-        {
-            throw DomainException.CreateConflictException("Account is frozen.",
-                new InvalidOperationException($"Attempt to debit frozen account {Id}."));
-        }
+        ThrowIfAccountFrozen();
         
         var transaction = new Transaction(Id,
             TransactionType.Debit,
@@ -283,6 +268,28 @@ public class Account
 
         var debitEvent = EventsFactory.MoneyDebitedV1(transaction);
         return eventNotifier.NotifyAsync(debitEvent);
+    }
+    
+    private void ThrowIfInsufficientBalance(Currency money)
+    {
+        if (Balance.Amount - money.Amount >= decimal.Zero)
+        {
+            return;
+        }
+
+        var invOpMessage =
+            $"An attempt to credit money from account {Id} by {money.Amount}, but account has only {Balance.Amount}.";
+        throw DomainException.CreateValidationException("Insufficient account balance.",
+            new InvalidOperationException(invOpMessage));
+    }
+
+    private void ThrowIfAccountFrozen()
+    {
+        if (Status == AccountStatus.Frozen)
+        {
+            throw DomainException.CreateConflictException("Account is frozen.",
+                new InvalidOperationException($"Attempt to debit/credit frozen account {Id}."));
+        }
     }
 
     public static async Task<Account> CreateNewAsync(Guid ownerId,
