@@ -28,10 +28,10 @@ public static class ServiceCollectionExtensions
             j=>j.RunAsync(CancellationToken.None), 
             Cron.Daily);
 
-        const string every10Seconds = "*/15 * * * * *";
+        const string every15Seconds = "*/15 * * * * *";
         jobRegistry.AddOrUpdate<OutboxProcessingJob>(OutboxProcessingJob.Name,
             o => o.RunAsync(CancellationToken.None),
-            every10Seconds
+            every15Seconds
         );
     }
 }
