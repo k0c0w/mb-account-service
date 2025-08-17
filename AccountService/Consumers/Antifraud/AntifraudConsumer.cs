@@ -4,6 +4,7 @@ using AccountService.Features.AccountFeatures.SetClientAccountsFrozen;
 using AccountService.Persistence.Infrastructure.DataAccess;
 using AccountService.Persistence.Infrastructure.RabbitMq;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client.Events;
 
 namespace AccountService.Consumers.Antifraud;
@@ -52,8 +53,19 @@ public class AntifraudConsumer(IServiceScopeFactory scopeFactory, ILogger<Antifr
             }
             else
             {
-                // todo: retries
-                await DispatchEvent(mediator, args.RoutingKey, e.Payload.ClientId, args.CancellationToken);
+                var messageWasNotProcessed = !await dbContext.InboxMessages
+                    .AnyAsync(x => x.Id == e.Id, args.CancellationToken);
+                
+                if (messageWasNotProcessed)
+                {
+                    // todo: retries
+                    await DispatchEvent(mediator, args.RoutingKey, e.Payload.ClientId, args.CancellationToken);
+                    await dbContext.InboxMessages.AddAsync(new InboxMessage
+                    {
+                        Id = e.Id,
+                        ProcessedAt = DateTimeOffset.UtcNow
+                    }, args.CancellationToken);
+                }
             }
             
             await transaction.CommitAsync(args.CancellationToken);
