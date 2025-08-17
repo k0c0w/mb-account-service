@@ -157,7 +157,8 @@ public class Account
         var senderTransaction = _transactionHistory[^1];
         var recipientTransaction = recipient._transactionHistory[^1];
 
-        await eventNotifier.NotifyAsync(new TransferCompletedEvent(senderTransaction, recipientTransaction));
+        var transferEvent = EventsFactory.TransferCompletedV1(senderTransaction, recipientTransaction);
+        await eventNotifier.NotifyAsync(transferEvent);
     }
 
     public Task ApplyIncomingTransactionAsync(TransactionType transactionType, Currency money,
@@ -179,13 +180,13 @@ public class Account
                     $"An attempt to perform operation with account {Id}, but {Id} is already closed at {ClosingTimeUtc}."));
         }
 
-        if (transactionType == TransactionType.Credit)
+        if (transactionType == TransactionType.Debit)
         {
-            ThrowIfInsufficientBalance(money);
-            return CreditMoneyAsync(money, "External payment operation.", eventNotifier);
+            return DebitMoneyAsync(money, "External debit operation.", eventNotifier);
         }
         
-        return DebitMoneyAsync(money, "External debit operation.", eventNotifier);
+        ThrowIfInsufficientBalance(money);
+        return CreditMoneyAsync(money, "External payment operation.", eventNotifier);
     }
 
     public decimal GetBalanceAt(DateTimeOffset time)
@@ -257,7 +258,8 @@ public class Account
         Balance = new Currency(Balance.Code, Balance.Amount - money.Amount);
         ModifiedAt = DateTimeOffset.UtcNow;
 
-        return eventNotifier.NotifyAsync(new MoneyCreditedEvent(transaction));
+        var creditEvent = EventsFactory.MoneyCreditedV1(transaction);
+        return eventNotifier.NotifyAsync(creditEvent);
     }
 
     private Task DebitMoneyAsync(Currency money, string description, IDomainEventNotifier eventNotifier,
@@ -265,7 +267,7 @@ public class Account
     {
         if (Status == AccountStatus.Frozen)
         {
-            throw DomainException.CreateValidationException("Account is frozen.",
+            throw DomainException.CreateConflictException("Account is frozen.",
                 new InvalidOperationException($"Attempt to debit frozen account {Id}."));
         }
         
@@ -279,7 +281,8 @@ public class Account
         Balance = new Currency(Balance.Code, Balance.Amount + money.Amount);
         ModifiedAt = DateTimeOffset.UtcNow;
 
-        return eventNotifier.NotifyAsync(new MoneyDebitedEvent(transaction));
+        var debitEvent = EventsFactory.MoneyDebitedV1(transaction);
+        return eventNotifier.NotifyAsync(debitEvent);
     }
 
     public static async Task<Account> CreateNewAsync(Guid ownerId,
@@ -289,8 +292,10 @@ public class Account
         AccountInterestRate? interestRate = default)
     {
         var account = new Account(ownerId, currencyCode, type, interestRate);
-        await eventNotifier.NotifyAsync(new AccountOpenedEvent(account));
-
+        
+        var openedEvent = EventsFactory.AccountOpenedV1(account);
+        await eventNotifier.NotifyAsync(openedEvent);
+        
         return account;
     }
 }

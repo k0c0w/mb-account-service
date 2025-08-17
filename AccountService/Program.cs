@@ -1,5 +1,6 @@
 using System.Reflection;
 using AccountService.Authentication;
+using AccountService.Consumers.Antifraud;
 using AccountService.Features;
 using AccountService.Features.Domain.Services;
 using AccountService.HealthChecks;
@@ -33,12 +34,9 @@ var rabbitCfg = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqConfig?
 builder.Services.Configure<RabbitMqConfig>(builder.Configuration.GetSection("RabbitMq"));
 
 await using var rabbitConnection = await rabbitCfg.CreateConnectionAsync();
-await using var writeChannel = await rabbitConnection.CreateChannelAsync();
-await using var readChannel = await rabbitConnection.CreateChannelAsync();
 
 services.AddSingleton(rabbitConnection);
-services.AddKeyedSingleton("write", writeChannel);
-services.AddKeyedSingleton("read", readChannel);
+services.AddSingleton<IChannel>(sp => sp.GetRequiredService<IConnection>().CreateChannelAsync().GetAwaiter().GetResult());
 
 services.AddOpenApi();
 services.AddSwagger(builder.Configuration);
@@ -66,6 +64,8 @@ services.AddHealthChecks()
     .AddCheck<DatabaseHealthChecks>("Database")
     .AddCheck<OutboxHealthCheck>("Outbox")
     .AddCheck<RabbitMqHealthCheck>("RabbitMq");
+
+services.AddHostedService<AntifraudConsumer>();
 
 var app = builder.Build();
 

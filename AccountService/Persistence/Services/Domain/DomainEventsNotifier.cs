@@ -2,11 +2,11 @@ using AccountService.Features.Domain.Events;
 using AccountService.Features.Domain.Services;
 using AccountService.Persistence.Infrastructure.DataAccess;
 
-namespace AccountService.Persistence.Services.Infrastructure.Outbox;
+namespace AccountService.Persistence.Services.Domain;
 
 public abstract class DomainEventsNotifier(AccountServiceDbContext dbContext) : IDomainEventNotifier
 {
-    public Task NotifyAsync(IDomainEvent occuredEvent)
+    public Task NotifyAsync<T>(EventEnvelope<T> occuredEvent) where T : IDomainEvent
     {
         var outbox = GetFrom(occuredEvent as dynamic);
         
@@ -15,15 +15,15 @@ public abstract class DomainEventsNotifier(AccountServiceDbContext dbContext) : 
             .AsTask();
     }
 
-    protected abstract OutboxMessage GetFrom(MoneyCreditedEvent occuredEvent);
+    protected abstract OutboxMessage GetFrom(EventEnvelope<MoneyCreditedEvent> occuredEvent);
     
-    protected abstract OutboxMessage GetFrom(MoneyDebitedEvent occuredEvent);
+    protected abstract OutboxMessage GetFrom(EventEnvelope<MoneyDebitedEvent> occuredEvent);
     
-    protected abstract OutboxMessage GetFrom(TransferCompletedEvent occuredEvent);
+    protected abstract OutboxMessage GetFrom(EventEnvelope<TransferCompletedEvent> occuredEvent);
     
-    protected abstract OutboxMessage GetFrom(AccountOpenedEvent occuredEvent);
+    protected abstract OutboxMessage GetFrom(EventEnvelope<AccountOpenedEvent> occuredEvent);
     
-    protected abstract OutboxMessage GetFrom(InterestAccruedEvent occuredEvent);
+    protected abstract OutboxMessage GetFrom(EventEnvelope<InterestAccruedEvent> occuredEvent);
     
     /// <summary>
     /// Fallback method
@@ -31,7 +31,7 @@ public abstract class DomainEventsNotifier(AccountServiceDbContext dbContext) : 
     /// <param name="occuredEvent">event with no concrete handler</param>
     /// <exception cref="NotImplementedException">Event was not registered or handled.</exception>
     // ReSharper disable once VirtualMemberNeverOverridden.Global
-    protected virtual OutboxMessage GetFrom(IDomainEvent occuredEvent)
+    protected virtual OutboxMessage GetFrom(EventEnvelope<IDomainEvent> occuredEvent)
     {
         throw new NotImplementedException("Unknown event occured.", 
             new ArgumentOutOfRangeException(nameof(occuredEvent), occuredEvent.GetType(), 

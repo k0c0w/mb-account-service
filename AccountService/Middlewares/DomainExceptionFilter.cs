@@ -25,7 +25,7 @@ public class DomainExceptionFilter : IMiddleware
             responseStatusCode = HttpStatusCode.BadRequest;
             error = e.Message;
         }
-        catch (DomainException e) when (e.Type == DomainException.DomainExceptionType.ConcurrencyError)
+        catch (DomainException e) when (e.Type == DomainException.DomainExceptionType.ConflictError)
         {
             responseStatusCode = HttpStatusCode.Conflict;
             error = e.Message;

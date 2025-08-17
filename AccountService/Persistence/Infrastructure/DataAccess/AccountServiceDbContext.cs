@@ -9,6 +9,10 @@ public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbCon
     public DbSet<Account> Accounts { get; init; }
     
     public DbSet<OutboxMessage> OutboxMessages { get; init; }
+    
+    public DbSet<InboxMessage> InboxMessages { get; init; }
+    
+    public DbSet<InboxDeadMessage> InboxDeadMessages { get; init; }
 
     protected override void OnModelCreating(ModelBuilder b)
     {        
@@ -17,8 +21,27 @@ public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbCon
         ConfigureEntity(b.Entity<Account>());
         ConfigureEntity(b.Entity<Transaction>());
         ConfigureEntity(b.Entity<OutboxMessage>());
+        ConfigureEntity(b.Entity<InboxDeadMessage>());
+        ConfigureEntity(b.Entity<InboxMessage>());
     }
 
+    private static void ConfigureEntity(EntityTypeBuilder<InboxDeadMessage> b)
+    {
+        b.HasKey(t => t.Id);
+        b.Property(t => t.Id)
+            .ValueGeneratedOnAdd();
+        
+        b.ToTable("inbox_dead_letters");
+    }
+    
+    private static void ConfigureEntity(EntityTypeBuilder<InboxMessage> b)
+    {
+        b.HasKey(i => i.Id);
+        b.Property(t => t.Id)
+            .ValueGeneratedNever()
+            .IsRequired();
+    }
+    
     private static void ConfigureEntity(EntityTypeBuilder<OutboxMessage> b)
     {
         b.HasKey(o => o.Id);

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using AccountService.Features.Domain.Events;
 using AccountService.Persistence.Infrastructure.DataAccess;
-using AccountService.Persistence.Services.Infrastructure.Outbox;
+using AccountService.Persistence.Services.Domain;
 using Microsoft.Extensions.Options;
 
 namespace AccountService.Persistence.Infrastructure.RabbitMq;
@@ -11,7 +11,7 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
 {
     private string ExchangeName => rabbitCfg.Value.ExchangeName;
 
-    private static OutboxMessage WithProperties<T>(T message, Dictionary<string, string> properties)
+    private static OutboxMessage WithProperties<T>(EventEnvelope<T> message, Dictionary<string, string> properties)
     where T : IDomainEvent
     {
         var headers = new Dictionary<string, object>
@@ -30,7 +30,7 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
         };
     }
 
-    protected override OutboxMessage GetFrom(MoneyCreditedEvent occuredEvent)
+    protected override OutboxMessage GetFrom(EventEnvelope<MoneyCreditedEvent> occuredEvent)
     {
         var properties = new Dictionary<string, string>
         {
@@ -41,7 +41,7 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
         return WithProperties(occuredEvent, properties);
     }
 
-    protected override OutboxMessage GetFrom(MoneyDebitedEvent occuredEvent)
+    protected override OutboxMessage GetFrom(EventEnvelope<MoneyDebitedEvent> occuredEvent)
     {
         var properties = new Dictionary<string, string>
         {
@@ -52,7 +52,7 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
         return WithProperties(occuredEvent, properties);
     }
 
-    protected override OutboxMessage GetFrom(TransferCompletedEvent occuredEvent)
+    protected override OutboxMessage GetFrom(EventEnvelope<TransferCompletedEvent> occuredEvent)
     {
         var properties = new Dictionary<string, string>
         {
@@ -63,7 +63,7 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
         return WithProperties(occuredEvent, properties);
     }
 
-    protected override OutboxMessage GetFrom(AccountOpenedEvent occuredEvent)
+    protected override OutboxMessage GetFrom(EventEnvelope<AccountOpenedEvent> occuredEvent)
     {
         var properties = new Dictionary<string, string>
         {
@@ -74,7 +74,7 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
         return WithProperties(occuredEvent, properties);
     }
 
-    protected override OutboxMessage GetFrom(InterestAccruedEvent occuredEvent)
+    protected override OutboxMessage GetFrom(EventEnvelope<InterestAccruedEvent> occuredEvent)
     {
         var properties = new Dictionary<string, string>
         {

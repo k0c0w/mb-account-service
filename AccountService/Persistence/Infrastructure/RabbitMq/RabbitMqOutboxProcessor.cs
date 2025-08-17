@@ -8,7 +8,7 @@ using RabbitMQ.Client;
 namespace AccountService.Persistence.Infrastructure.RabbitMq;
 
 public sealed class RabbitMqOutboxProcessor(
-    [FromKeyedServices("write")] IChannel rabbitMqBus,
+    IChannel rabbitMqBus,
     AccountServiceDbContext dbContext, 
     ILogger<RabbitMqOutboxProcessor> logger,
     IOptions<OutboxProcessorConfig> config) : OutboxProcessor(dbContext, logger, config)

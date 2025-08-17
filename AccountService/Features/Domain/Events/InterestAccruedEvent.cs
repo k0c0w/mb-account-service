@@ -6,12 +6,6 @@ namespace AccountService.Features.Domain.Events;
 
 public sealed class InterestAccruedEvent : IDomainEvent
 {
-    public Guid EventId { get; } = Guid.CreateVersion7();
-
-    public DateTimeOffset OccurredAt { get; } = DateTimeOffset.UtcNow;
-    
-    public EventMeta Meta { get; }
-    
     public DateTimeOffset PeriodFrom { get; }
 
     public DateTimeOffset PeriodTo { get; }
@@ -41,11 +35,5 @@ public sealed class InterestAccruedEvent : IDomainEvent
         PeriodTo = to;
         Amount = amount;
         AccountId = accountId;
-        Meta = new EventMeta
-        {
-            Version = "v1",
-            CausationId = EventId,
-            CorrelationId = EventId
-        };
     }
 }

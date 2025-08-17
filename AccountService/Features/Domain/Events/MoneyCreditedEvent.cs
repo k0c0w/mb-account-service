@@ -4,8 +4,6 @@ namespace AccountService.Features.Domain.Events;
 
 public sealed class MoneyCreditedEvent : IDomainEvent
 {
-    public Guid EventId { get; } = Guid.CreateVersion7();
-
     public decimal Amount { get; } 
 
     public string Currency { get; }
@@ -14,10 +12,6 @@ public sealed class MoneyCreditedEvent : IDomainEvent
     
     public Guid AccountId { get; }
     
-    public DateTimeOffset OccurredAt { get; }
-    
-    public EventMeta Meta { get; }
-
     public MoneyCreditedEvent(Transaction transaction)
     {
         if (transaction.Type != TransactionType.Credit)
@@ -29,12 +23,5 @@ public sealed class MoneyCreditedEvent : IDomainEvent
         Currency = transaction.Amount.Code.Value;
         OperationId = transaction.Id;
         AccountId = transaction.AccountId;
-        OccurredAt = transaction.TimeUtc;
-        Meta = new EventMeta
-        {
-            Version = "v1",
-            CausationId = EventId,
-            CorrelationId = EventId
-        };
     }
 }

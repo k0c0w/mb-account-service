@@ -4,5 +4,5 @@ namespace AccountService.Features.Domain.Services;
 
 public interface IDomainEventNotifier
 {
-    Task NotifyAsync(IDomainEvent occuredEvent);
+    Task NotifyAsync<T>(EventEnvelope<T> occuredEvent) where T : IDomainEvent;
 }

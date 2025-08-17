@@ -34,7 +34,7 @@ public class TransactionalBehavior<TRequest,TResponse>(AccountServiceDbContext d
         {
             await transaction.RollbackAsync(ct);
             
-            throw DomainException.CreateConcurrencyException(transactionAbortedMessage, ex);
+            throw DomainException.CreateConflictException(transactionAbortedMessage, ex);
         }
         catch
         {

@@ -8,7 +8,7 @@ public class DomainException : Exception
     {
         ValidationError = 1,
         ExistenceError,
-        ConcurrencyError
+        ConflictError
     }
 
     private DomainException(string message, DomainExceptionType type, Exception innerException)
@@ -27,8 +27,8 @@ public class DomainException : Exception
         return new DomainException(message, DomainExceptionType.ExistenceError, new InvalidOperationException());
     }
     
-    public static DomainException CreateConcurrencyException(string message, Exception? innerException = null)
+    public static DomainException CreateConflictException(string message, Exception? innerException = null)
     {
-        return new DomainException(message, DomainExceptionType.ConcurrencyError, innerException ?? new InvalidOperationException());
+        return new DomainException(message, DomainExceptionType.ConflictError, innerException ?? new InvalidOperationException());
     }
 }
