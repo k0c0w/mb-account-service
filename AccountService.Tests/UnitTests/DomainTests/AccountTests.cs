@@ -31,7 +31,8 @@ public class AccountTests : TestsBase
         var timeBefore = DateTime.UtcNow;
 
         var expectedEventType =
-            incomingTransactionType == TransactionType.Credit ? typeof(MoneyCreditedEvent) : typeof(MoneyDebitedEvent);
+            incomingTransactionType == TransactionType.Credit ? typeof(EventEnvelope<MoneyCreditedEvent>) 
+                : typeof(EventEnvelope<MoneyDebitedEvent>);
 
         // Act
         await account.ApplyIncomingTransactionAsync(incomingTransactionType, money, EventNotifierFake);
@@ -159,9 +160,9 @@ public class AccountTests : TestsBase
         Assert.Equal(expectedABalance, sender.Balance.Amount);
         Assert.Equal(sendMoneyAmount, recipient.Balance.Amount);
 
-        Assert.Contains(typeof(MoneyCreditedEvent), EventNotifierFake.OccuredEventsTypes);
-        Assert.Contains(typeof(MoneyDebitedEvent), EventNotifierFake.OccuredEventsTypes);
-        Assert.Contains(typeof(TransferCompletedEvent), EventNotifierFake.OccuredEventsTypes);
+        Assert.Contains(typeof(EventEnvelope<MoneyCreditedEvent>), EventNotifierFake.OccuredEventsTypes);
+        Assert.Contains(typeof(EventEnvelope<MoneyDebitedEvent>), EventNotifierFake.OccuredEventsTypes);
+        Assert.Contains(typeof(EventEnvelope<TransferCompletedEvent>), EventNotifierFake.OccuredEventsTypes);
     }
 
     [Fact]
