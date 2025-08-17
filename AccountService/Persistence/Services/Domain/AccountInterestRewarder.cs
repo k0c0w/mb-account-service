@@ -3,7 +3,7 @@ using AccountService.Features.Domain.Services;
 using AccountService.Persistence.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
-namespace AccountService.Persistence.Services;
+namespace AccountService.Persistence.Services.Domain;
 
 public class AccountInterestRewarder(AccountServiceDbContext dbContext) : IAccountInterestRewarder
 {

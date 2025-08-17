@@ -7,7 +7,7 @@ using AccountService.Middlewares;
 using AccountService.Persistence;
 using AccountService.Persistence.Infrastructure.DataAccess;
 using AccountService.Persistence.Infrastructure.RabbitMq;
-using AccountService.Persistence.Services;
+using AccountService.Persistence.Services.Domain;
 using AccountService.Swagger;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;

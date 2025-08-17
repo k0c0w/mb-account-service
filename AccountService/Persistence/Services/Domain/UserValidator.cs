@@ -1,7 +1,6 @@
-using AccountService.Features.Domain;
 using AccountService.Features.Domain.Services;
 
-namespace AccountService.Persistence.Services;
+namespace AccountService.Persistence.Services.Domain;
 
 public class UserValidator : IUserValidator
 {
