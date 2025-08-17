@@ -1,13 +1,12 @@
 using System.Reflection;
 using AccountService.Authentication;
 using AccountService.Features;
-using AccountService.Features.DataAccess;
-using AccountService.Features.Domain.Events;
 using AccountService.Features.Domain.Services;
 using AccountService.Jobs;
 using AccountService.Middlewares;
 using AccountService.Persistence;
-using AccountService.Persistence.RabbitMq;
+using AccountService.Persistence.Infrastructure.DataAccess;
+using AccountService.Persistence.Infrastructure.RabbitMq;
 using AccountService.Persistence.Services;
 using AccountService.Swagger;
 using JetBrains.Annotations;
@@ -36,9 +35,6 @@ services.AddDbContextFactory<AccountServiceDbContext>(
     cfg => cfg.UseNpgsql(dbConfig.GetValue<string>("ConnectionString")));
 services.AddScoped<AccountServiceDbContext>(sp =>
     sp.GetRequiredService<IDbContextFactory<AccountServiceDbContext>>().CreateDbContext());
-
-services.AddMasstransitOverRabbitMq(rabbitCfg)
-    .AddScoped<IDomainEventNotifier, DomainEventsNotifier>();
 
 if (builder.Environment.EnvironmentName != "Testing")
 {

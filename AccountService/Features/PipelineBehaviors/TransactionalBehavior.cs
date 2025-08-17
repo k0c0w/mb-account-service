@@ -1,6 +1,6 @@
 using System.Data;
-using AccountService.Features.DataAccess;
 using AccountService.Features.Domain;
+using AccountService.Persistence.Infrastructure.DataAccess;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;

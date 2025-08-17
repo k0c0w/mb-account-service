@@ -1,9 +1,8 @@
 using AccountService.Features.Domain;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AccountService.Features.DataAccess;
+namespace AccountService.Persistence.Infrastructure.DataAccess;
 
 public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbContext> options) : DbContext(options)
 {
@@ -13,7 +12,6 @@ public sealed class AccountServiceDbContext(DbContextOptions<AccountServiceDbCon
     {        
         base.OnModelCreating(b);
 
-        b.AddTransactionalOutboxEntities();
         ConfigureEntity(b.Entity<Account>());
         ConfigureEntity(b.Entity<Transaction>());
     }

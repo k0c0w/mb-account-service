@@ -1,4 +1,4 @@
-using AccountService.Features.DataAccess;
+using AccountService.Persistence.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Persistence;

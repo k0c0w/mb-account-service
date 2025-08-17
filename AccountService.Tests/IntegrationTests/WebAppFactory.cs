@@ -1,4 +1,4 @@
-using AccountService.Features.DataAccess;
+using AccountService.Persistence.Infrastructure.DataAccess;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;

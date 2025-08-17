@@ -1,7 +1,7 @@
 using AccountService.Features.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace AccountService.Features.DataAccess;
+namespace AccountService.Persistence.Infrastructure.DataAccess;
 
 public static class AccountQueryableExtensions
 {

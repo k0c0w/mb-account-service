@@ -1,5 +1,5 @@
-using AccountService.Features.DataAccess;
 using AccountService.Features.Domain;
+using AccountService.Persistence.Infrastructure.DataAccess;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

@@ -1,7 +1,6 @@
 using System.Data;
-using AccountService.Features.DataAccess;
-using AccountService.Features.Domain;
 using AccountService.Features.Domain.Services;
+using AccountService.Persistence.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Persistence.Services;

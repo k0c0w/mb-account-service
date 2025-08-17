@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace AccountService.Features.DataAccess.Migrations
+namespace AccountService.Persistence.Infrastructure.DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class Transactions_Added_AccountIdTimeUtc_Index : Migration
