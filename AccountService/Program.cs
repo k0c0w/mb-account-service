@@ -2,6 +2,7 @@ using System.Reflection;
 using AccountService.Authentication;
 using AccountService.Features;
 using AccountService.Features.Domain.Services;
+using AccountService.HealthChecks;
 using AccountService.Jobs;
 using AccountService.Middlewares;
 using AccountService.Persistence.Infrastructure.DataAccess;
@@ -61,6 +62,10 @@ if (builder.Environment.EnvironmentName != "Testing")
 
 services.AddCors();
 services.AddJwt(builder.Configuration);
+services.AddHealthChecks()
+    .AddCheck<DatabaseHealthChecks>("Database")
+    .AddCheck<OutboxHealthCheck>("Outbox")
+    .AddCheck<RabbitMqHealthCheck>("RabbitMq");
 
 var app = builder.Build();
 
@@ -91,6 +96,7 @@ app.UseMiddleware<GlobalExceptionFilter>();
 app.UseMiddleware<ValidationExceptionFilter>();
 app.UseMiddleware<DomainExceptionFilter>();
 
+app.MapHealthChecks();
 app.MapControllers()
     .RequireAuthorization();
 
