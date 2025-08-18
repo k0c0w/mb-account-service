@@ -16,6 +16,11 @@ public class AntifraudConsumer(IServiceScopeFactory scopeFactory, ILogger<Antifr
 
     protected override async Task HandleMessageAsync(BasicDeliverEventArgs args)
     {
+        var props = args.BasicProperties;
+        var eventId = props.MessageId;
+        var eventType = args.RoutingKey;
+        var eventCorrelationId = props.CorrelationId;
+        
         using var scope = ScopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AccountServiceDbContext>();
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -38,7 +43,8 @@ public class AntifraudConsumer(IServiceScopeFactory scopeFactory, ILogger<Antifr
             var e = await JsonSerializer.DeserializeAsync<Envelope<ClientStateChanged>>(stream, options);
             if (e == null || e.Meta.Version != "v1")
             {
-                Logger.LogWarning("Received unsupported message version: {messageId} {version}", e?.Id, e?.Meta.Version);
+                Logger.LogWarning("{EventId}:{Type}:{CorrelationId} received unsupported message version: {version}", 
+                    e?.Id.ToString() ?? eventId, eventType, eventCorrelationId, e?.Meta.Version);
                 
                 var deadMessage = new InboxDeadMessage
                 {
@@ -66,14 +72,23 @@ public class AntifraudConsumer(IServiceScopeFactory scopeFactory, ILogger<Antifr
                         ProcessedAt = DateTimeOffset.UtcNow
                     }, args.CancellationToken);
                 }
+                else
+                {
+                    Logger.LogInformation("{EventId}:{Type}:{CorrelationId} skipping repeatable event", 
+                        e?.Id.ToString() ?? eventId, eventType, eventCorrelationId);
+                }
             }
             
             await transaction.CommitAsync(args.CancellationToken);
+            Logger.LogInformation("{EventId}:{Type}:{CorrelationId} applied event", 
+                e?.Id.ToString() ?? eventId, eventType, eventCorrelationId);
 
             await Channel.BasicAckAsync(args.DeliveryTag, multiple: false, args.CancellationToken);
         }
         catch (Exception e)
         {
+            Logger.LogInformation("{EventId}:{Type}:{CorrelationId} event handling failed with error: {Message}", 
+                eventId, eventType, eventCorrelationId, e.Message);
             Logger.LogError(e, "Failure during message consuming: {message}", e.Message);
             await transaction.RollbackAsync(args.CancellationToken);
 

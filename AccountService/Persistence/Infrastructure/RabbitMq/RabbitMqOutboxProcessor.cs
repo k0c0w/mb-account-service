@@ -24,6 +24,16 @@ public sealed class RabbitMqOutboxProcessor(
         {
             routingKey = string.Empty;
         }
+        
+        if (!outboxMessage.Properties.TryGetValue(PropertiesKeys.MessageId, out var messageId))
+        {
+            messageId = string.Empty;
+        }
+        
+        if (!outboxMessage.Properties.TryGetValue(PropertiesKeys.CorrelationId, out var correlationId))
+        {
+            correlationId = string.Empty;
+        }
 
         const bool routeToQueueDirectly = false;
 
@@ -31,6 +41,8 @@ public sealed class RabbitMqOutboxProcessor(
         {
             ContentType = "application/json",
             DeliveryMode = DeliveryModes.Persistent,
+            MessageId = messageId,
+            CorrelationId = correlationId,
             Headers = outboxMessage.Headers?
                 .Select(kv => new KeyValuePair<string,object?>(kv.Key, ConvertHeaderValue(kv.Value)))
                 .ToDictionary()

@@ -4,10 +4,15 @@ using AccountService.Persistence.Infrastructure.DataAccess;
 
 namespace AccountService.Persistence.Services.Domain;
 
-public abstract class DomainEventsNotifier(AccountServiceDbContext dbContext) : IDomainEventNotifier
+public abstract class DomainEventsNotifier(AccountServiceDbContext dbContext, ILogger<IDomainEventNotifier> logger) 
+    : IDomainEventNotifier
 {
+    private ILogger Logger => logger;
+    
     public Task NotifyAsync<T>(EventEnvelope<T> occuredEvent) where T : IDomainEvent
     {
+        Logger.LogInformation("{EventId}:{Type}:{CorrelationId} event occured", occuredEvent.Id, typeof(T), occuredEvent.Meta.CorrelationId);
+        
         var outbox = GetFrom(occuredEvent as dynamic);
         
         return dbContext.OutboxMessages

@@ -6,8 +6,10 @@ using Microsoft.Extensions.Options;
 
 namespace AccountService.Persistence.Infrastructure.RabbitMq;
 
-public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbContext, IOptions<RabbitMqConfig> rabbitCfg) 
-    : DomainEventsNotifier(dbContext)
+public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbContext, 
+    IOptions<RabbitMqConfig> rabbitCfg,
+    ILogger<RabbitMqDomainEventsNotifier> logger) 
+    : DomainEventsNotifier(dbContext, logger)
 {
     private string ExchangeName => rabbitCfg.Value.ExchangeName;
 
@@ -35,7 +37,9 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
         var properties = new Dictionary<string, string>
         {
             { PropertiesKeys.ExchangeName, ExchangeName },
-            { PropertiesKeys.RoutingKey, "money.credited" }
+            { PropertiesKeys.RoutingKey, "money.credited" },
+            { PropertiesKeys.MessageId, occuredEvent.Id.ToString()},
+            { PropertiesKeys.CorrelationId, occuredEvent.Meta.CorrelationId.ToString()}
         };
         
         return WithProperties(occuredEvent, properties);
@@ -46,7 +50,9 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
         var properties = new Dictionary<string, string>
         {
             { PropertiesKeys.ExchangeName, ExchangeName },
-            { PropertiesKeys.RoutingKey, "money.debited" }
+            { PropertiesKeys.RoutingKey, "money.debited" },
+            { PropertiesKeys.MessageId, occuredEvent.Id.ToString()},
+            { PropertiesKeys.CorrelationId, occuredEvent.Meta.CorrelationId.ToString()}
         };
         
         return WithProperties(occuredEvent, properties);
@@ -57,7 +63,9 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
         var properties = new Dictionary<string, string>
         {
             { PropertiesKeys.ExchangeName, ExchangeName },
-            { PropertiesKeys.RoutingKey, "money.transferred" }
+            { PropertiesKeys.RoutingKey, "money.transferred" },
+            { PropertiesKeys.MessageId, occuredEvent.Id.ToString()},
+            { PropertiesKeys.CorrelationId, occuredEvent.Meta.CorrelationId.ToString()}
         };
         
         return WithProperties(occuredEvent, properties);
@@ -68,7 +76,9 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
         var properties = new Dictionary<string, string>
         {
             { PropertiesKeys.ExchangeName, ExchangeName },
-            { PropertiesKeys.RoutingKey, "account.opened" }
+            { PropertiesKeys.RoutingKey, "account.opened" },
+            { PropertiesKeys.MessageId, occuredEvent.Id.ToString()},
+            { PropertiesKeys.CorrelationId, occuredEvent.Meta.CorrelationId.ToString()}
         };
         
         return WithProperties(occuredEvent, properties);
@@ -79,7 +89,9 @@ public sealed class RabbitMqDomainEventsNotifier(AccountServiceDbContext dbConte
         var properties = new Dictionary<string, string>
         {
             { PropertiesKeys.ExchangeName, ExchangeName },
-            { PropertiesKeys.RoutingKey, "money.interest_occured" }
+            { PropertiesKeys.RoutingKey, "money.interest_occured" },
+            { PropertiesKeys.MessageId, occuredEvent.Id.ToString()},
+            { PropertiesKeys.CorrelationId, occuredEvent.Meta.CorrelationId.ToString()}
         };
         
         return WithProperties(occuredEvent, properties);

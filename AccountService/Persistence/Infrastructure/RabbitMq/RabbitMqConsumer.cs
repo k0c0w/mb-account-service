@@ -30,10 +30,20 @@ public abstract class RabbitMqConsumer(
         Channel = await connection.CreateChannelAsync(cancellationToken: stoppingToken);
 
         var consumer = new AsyncEventingBasicConsumer(Channel);
-        consumer.ReceivedAsync += (_, ea) => HandleMessageAsync(ea);
+        consumer.ReceivedAsync += OnReceivedAsync;
         
         await Channel.BasicConsumeAsync(queue: QueueName, autoAck: false, consumer: consumer, cancellationToken: stoppingToken);
         Logger.LogInformation("Consumer for queue {queue} started", QueueName);
+    }
+
+    private async Task OnReceivedAsync(object model, BasicDeliverEventArgs ea)
+    {
+        var props = ea.BasicProperties;
+        Logger.LogInformation("{EventId}:{Type}:{CorrelationId} received event", props.MessageId, ea.RoutingKey, props.CorrelationId);
+        
+        await HandleMessageAsync(ea);
+        
+        Logger.LogInformation("{EventId}:{Type}:{CorrelationId} event handled", props.MessageId, ea.RoutingKey, props.CorrelationId);
     }
 
     public override void Dispose()
