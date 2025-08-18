@@ -82,7 +82,9 @@ app.UseSwaggerAndSwaggerUi(builder.Configuration);
 
 app.UseCors(opt =>
 {
-    opt.AllowAnyOrigin();
+    opt.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
 });
 
 app.Use401ResponseFormatter();

@@ -11,7 +11,7 @@ Swagger доступен по /swagger.
 В системе уже созданы следующие пользователи:
 (uuid, username, password)
 - `88bc045c-ecc8-4cb7-8cd9-b28938abef55`, testuser1, testpass1
-- `6d8600da-cc20-42b9-a410-37c0b9e5b6c9`, testpass1, testpass2
+- `6d8600da-cc20-42b9-a410-37c0b9e5b6c9`, testuser2, testpass2
 
 Только они допускаются для создания новых счетов.
 Регистрация новых пользователей возможна в keycloak в realm modulbank.

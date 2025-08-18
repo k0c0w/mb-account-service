@@ -19,10 +19,12 @@ public class AccountsController : ControllerBase
     /// </remarks>
     /// <response code="201">An account has been created</response>
     /// <response code="400">Invalid arguments or operation</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="500">Some unhandled error</response>
     [HttpPost("")]
     [ProducesResponseType(typeof(MbResult<CreatedAccountDto, string>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(MbResult<CreatedAccountDto, string>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status500InternalServerError)]
     public async Task<IResult> CreateNewAsync(
         [FromBody] CreateNewAccountCommand request,
@@ -39,9 +41,11 @@ public class AccountsController : ControllerBase
     /// </summary>
     /// <returns>List of existing accounts</returns>
     /// <response code="200">A list of existing accounts</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="500">Some unhandled error</response>
     [HttpGet("")]
     [ProducesResponseType(typeof(MbResult<IEnumerable<AccountDto>, string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status500InternalServerError)]
     public async Task<IResult> ListAccountsAsync([FromServices] IMediator mediator)
     {
@@ -59,12 +63,14 @@ public class AccountsController : ControllerBase
     /// <returns>Nothing</returns>
     /// <response code="204">Account has been updated successfully</response>
     /// <response code="400">Invalid argument met or account can not be updated</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="404">The account does not exist</response>
     /// <response code="409">The account has been modified already</response>
     /// <response code="500">Some unhandled error</response>
     [HttpPatch("{id:guid}/interest-rate")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MbResult<string>),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MbResult<string>),StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status500InternalServerError)]
@@ -84,12 +90,14 @@ public class AccountsController : ControllerBase
     /// <returns>Nothing</returns>
     /// <response code="204">Account has been closed and deleted successfully</response>
     /// <response code="400">Invalid argument met or account can not be deleted</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="404">The account does not exist</response>
     /// <response code="409">The account has been modified already</response>
     /// <response code="500">Some unhandled error</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MbResult<string>),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MbResult<string>),StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status500InternalServerError)]
