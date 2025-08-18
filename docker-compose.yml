@@ -13,7 +13,7 @@ services:
       - Authentication__Issuer=http://localhost:8080/realms/modulbank
       - Authentication__MetadataAddress=http://keycloak:8080/realms/modulbank/.well-known/openid-configuration
       - Authentication__RequireHttpsMetadata=false
-      - Database__ConnectionStrings=Host=db;Port=5432;Database=modulbankdb;Username=modulbankuser;Password=modulbankpass
+      - Database__ConnectionString=Host=db;Port=5432;Database=modulbankdb;Username=modulbankuser;Password=modulbankpass
       - Database__MustMigrate=true
       - ConnectionStrings__Hangfire="Host=db;Port=5432;Database=hangfiredb;Username=modulbankuser;Password=modulbankpass"
       - RabbitMq__Host=bus
