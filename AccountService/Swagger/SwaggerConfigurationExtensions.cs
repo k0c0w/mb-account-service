@@ -21,7 +21,6 @@ public static class SwaggerConfigurationExtensions
         {
             options.OAuthClientId(clientId);
             options.OAuthScopes(Scopes.Values.ToArray());
-            options.EnablePersistAuthorization();
         });
     }
     
@@ -65,6 +64,7 @@ public static class SwaggerConfigurationExtensions
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename), includeControllerXmlComments: true);
             options.OperationFilter<AddDefaultResponsesFilter>();
+            options.DocumentFilter<AddPossibleEventsDescriptionFilter>();
         });
     }
 }
