@@ -16,7 +16,8 @@ public static class AccountsFactory
         CurrencyCode? currencyCode = null,
         DateTimeOffset? creationTime = null,
         AccountInterestRate? interestRate = null,
-        DateTimeOffset? closeTimeUtc = null)
+        DateTimeOffset? closeTimeUtc = null,
+        bool isFrozen = false)
     {
         ownerId ??= Guid.CreateVersion7();
         accountId ??= Guid.CreateVersion7();
@@ -97,6 +98,12 @@ public static class AccountsFactory
         if (closeTimeUtc.HasValue)
         {
             SetProperty(account, nameof(Account.ClosingTimeUtc), closeTimeUtc.Value);
+            SetProperty(account, nameof(Account.Status), AccountStatus.Closed);
+        }
+        else
+        {
+            var status = isFrozen ? AccountStatus.Frozen : AccountStatus.Active;
+            SetProperty(account, nameof(Account.Status), status);
         }
 
         return account;

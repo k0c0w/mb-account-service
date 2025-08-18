@@ -6,17 +6,17 @@ namespace AccountService.Persistence.Infrastructure.RabbitMq;
 // Instantiated by configuration
 public sealed record RabbitMqConfig
 {
-    public required string Host { get; init; }
+    public required string Host { get; set; }
 
-    public required int Port { get; init; } = 5672;
+    public required int Port { get; set; } = 5672;
     
-    public required string VirtualHost { get; init; }
+    public required string VirtualHost { get; set; }
     
-    public required string User { get; init; }
+    public required string User { get; set; }
     
-    public required string Password { get; init; }
+    public required string Password { get; set; }
     
-    public required string ExchangeName { get; init; }
+    public required string ExchangeName { get; set; }
 
     public Task<IConnection> CreateConnectionAsync()
     {

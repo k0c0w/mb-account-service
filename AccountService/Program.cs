@@ -14,6 +14,7 @@ using AccountService.Persistence.Services.Infrastructure.Outbox;
 using AccountService.Swagger;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using RabbitMQ.Client;
 
@@ -30,12 +31,13 @@ services.AddDbContextFactory<AccountServiceDbContext>(
 services.AddScoped<AccountServiceDbContext>(sp =>
     sp.GetRequiredService<IDbContextFactory<AccountServiceDbContext>>().CreateDbContext());
 
-var rabbitCfg = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqConfig?>() ?? throw new ArgumentException();
 builder.Services.Configure<RabbitMqConfig>(builder.Configuration.GetSection("RabbitMq"));
-
-await using var rabbitConnection = await rabbitCfg.CreateConnectionAsync();
-
-services.AddSingleton(rabbitConnection);
+services.Configure<RabbitMqConfig>(builder.Configuration.GetSection("RabbitMq"));
+services.AddSingleton<IConnection>(sp =>
+{
+    var rabbitCfg = sp.GetRequiredService<IOptions<RabbitMqConfig>>().Value;
+    return rabbitCfg.CreateConnectionAsync().GetAwaiter().GetResult();
+});
 services.AddSingleton<IChannel>(sp => sp.GetRequiredService<IConnection>().CreateChannelAsync().GetAwaiter().GetResult());
 
 services.AddOpenApi();
@@ -74,7 +76,7 @@ if (dbConfig.GetValue<bool>("MustMigrate"))
     InProcessMigrator.ApplyMigrations(app.Services);
 }
 
-if (builder.Environment.EnvironmentName != "Testing")
+//if (builder.Environment.EnvironmentName != "Testing")
 {
     app.UseHangfireJobs();
 }
@@ -101,8 +103,6 @@ app.MapControllers()
     .RequireAuthorization();
 
 app.Run();
-
-await rabbitConnection.CloseAsync();
 
 // used by testing
 [UsedImplicitly]
