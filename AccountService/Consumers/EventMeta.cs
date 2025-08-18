@@ -7,6 +7,8 @@ public sealed record EventMeta
 {
     public string Source { get; init; } = string.Empty;
 
+    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
+    // Data contract
     public string Version { get; init; } = string.Empty;
     
     public Guid CorrelationId { get; init; }

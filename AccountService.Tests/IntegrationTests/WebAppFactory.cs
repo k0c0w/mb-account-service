@@ -26,14 +26,12 @@ public class WebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
         .WithPassword("postgresql")
         .Build();
 
-    private readonly RabbitMqContainer _rabbitMqContainer = new RabbitMqBuilder()
+    public RabbitMqContainer RabbitMqContainer { get; } = new RabbitMqBuilder()
         .WithImage("rabbitmq:4-management")
         .WithUsername("guest")
         .WithPassword("guest")
         .WithHostname("localhost")
         .Build();
-    
-    public RabbitMqContainer RabbitMqContainer => _rabbitMqContainer;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -56,8 +54,8 @@ public class WebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
             
             services.Configure<RabbitMqConfig>(opt =>
             {
-                opt.Host = _rabbitMqContainer.Hostname;
-                opt.Port = _rabbitMqContainer.GetMappedPublicPort(5672);
+                opt.Host = RabbitMqContainer.Hostname;
+                opt.Port = RabbitMqContainer.GetMappedPublicPort(5672);
                 opt.User = "guest";
                 opt.Password = "guest";
                 opt.VirtualHost = "/";
@@ -67,7 +65,7 @@ public class WebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        await Task.WhenAll(_rabbitMqContainer.StartAsync(), _dbContainer.StartAsync());
+        await Task.WhenAll(RabbitMqContainer.StartAsync(), _dbContainer.StartAsync());
 
         await using var conn = await GetRabbitMqConnectionAsync();
         await using var chan = await conn.CreateChannelAsync();
@@ -87,18 +85,18 @@ public class WebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         var f = new ConnectionFactory
         {
-            HostName = _rabbitMqContainer.Hostname,
-            Port = _rabbitMqContainer.GetMappedPublicPort(5672),
+            HostName = RabbitMqContainer.Hostname,
+            Port = RabbitMqContainer.GetMappedPublicPort(5672),
             UserName = "guest",
             Password = "guest",
-            VirtualHost = "/",
+            VirtualHost = "/"
         };
        return f.CreateConnectionAsync();
     }
 
     public new async Task DisposeAsync()
     {
-        await Task.WhenAll(_rabbitMqContainer.StopAsync(), _dbContainer.StopAsync());
+        await Task.WhenAll(RabbitMqContainer.StopAsync(), _dbContainer.StopAsync());
         await base.DisposeAsync();
     }
 }

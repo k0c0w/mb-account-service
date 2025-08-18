@@ -1,5 +1,4 @@
 using AccountService.Persistence.Services.Infrastructure.Outbox;
-using Hangfire;
 
 namespace AccountService.Jobs;
 

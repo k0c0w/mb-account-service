@@ -1,9 +1,10 @@
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
+// ReSharper disable once ClassNeverInstantiated.Global
+// Instantiated by configuration
 using RabbitMQ.Client;
 
 namespace AccountService.Persistence.Infrastructure.RabbitMq;
 
-// ReSharper disable once ClassNeverInstantiated.Global
-// Instantiated by configuration
 public sealed record RabbitMqConfig
 {
     public required string Host { get; set; }

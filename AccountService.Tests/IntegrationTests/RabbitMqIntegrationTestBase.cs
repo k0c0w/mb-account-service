@@ -15,7 +15,7 @@ public class RabbitMqIntegrationTestBase
         consumer.ReceivedAsync += (_, ea) =>
         {
             var body = ea.Body.ToArray();
-            var message = JsonSerializer.Deserialize<T>(body, new JsonSerializerOptions()
+            var message = JsonSerializer.Deserialize<T>(body, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
@@ -24,7 +24,7 @@ public class RabbitMqIntegrationTestBase
         };
 
         await channel.BasicConsumeAsync(queue, true, consumer);
-        var timeoutTask = Task.Delay(timeout).ContinueWith(_ => tcs.TrySetResult(default(T?)));
+        var timeoutTask = Task.Delay(timeout).ContinueWith(_ => tcs.TrySetResult(default));
         await Task.WhenAny(tcs.Task, timeoutTask);
 
         return tcs.Task.Result;

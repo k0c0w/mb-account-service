@@ -75,7 +75,7 @@ public class AntifraudConsumer(IServiceScopeFactory scopeFactory, ILogger<Antifr
                 else
                 {
                     Logger.LogInformation("{EventId}:{Type}:{CorrelationId} skipping repeatable event", 
-                        e?.Id.ToString() ?? eventId, eventType, eventCorrelationId);
+                        e.Id.ToString(), eventType, eventCorrelationId);
                 }
             }
             

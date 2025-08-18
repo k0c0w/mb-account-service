@@ -3,6 +3,7 @@ using AccountService.Features.Domain;
 using AccountService.Features.TransactionFeatures.RegisterExternalTransaction;
 using AccountService.Persistence.Infrastructure.DataAccess;
 using AccountService.Tests.Factories;
+using JetBrains.Annotations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,7 +69,6 @@ public class AntifraudConsumerTests(WebAppFactory factory) : RabbitMqIntegration
         // Wait for AntifraudConsumer to process (adjust based on consumer speed)
         await Task.Delay(TimeSpan.FromSeconds(60));
         _dbContext.ChangeTracker.Clear();
-        Task Action() => _mediator.Send(debitCommand);
 
         var ex = await Assert.ThrowsAsync<DomainException>(Action);
         Assert.Equal(DomainException.DomainExceptionType.ConflictError, ex.Type);
@@ -82,12 +82,14 @@ public class AntifraudConsumerTests(WebAppFactory factory) : RabbitMqIntegration
             await ConsumeEventAsync<MoneyDebitedEvent>(channel, "account.notifications", TimeSpan.FromSeconds(10));
 
         Assert.Null(eventReceived);
+        return;
+
+        Task Action() => _mediator.Send(debitCommand);
     }
 
-    public record MoneyDebitedEvent(
-        Guid Id,
-        DateTimeOffset OccuredAt,
-        MoneyDebitedEventPayload Payload);
-
-    public record MoneyDebitedEventPayload(decimal Amount, string Currency, string OperationId, Guid AccountId);
+    [UsedImplicitly]
+    private record MoneyDebitedEvent(Guid Id, DateTimeOffset OccuredAt, MoneyDebitedEventPayload Payload);
+    
+    [UsedImplicitly]
+    private record MoneyDebitedEventPayload(decimal Amount, string Currency, string OperationId, Guid AccountId);
 }
