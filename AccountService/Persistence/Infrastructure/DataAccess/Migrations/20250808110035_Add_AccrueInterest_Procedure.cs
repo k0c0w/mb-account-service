@@ -1,11 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace AccountService.Persistence.Infrastructure.DataAccess.Migrations
 {
-    /// <inheritdoc />
-    public partial class Add_AccrueInterest_Procedure : Migration
+    [DbContext(typeof(AccountServiceDbContext))]
+    [Migration("20250808110035_Add_AccrueInterest_Procedure")]
+    public class Add_AccrueInterest_Procedure : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -95,7 +97,7 @@ namespace AccountService.Persistence.Infrastructure.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DROP PROCEDURE IF EXISTS AccrueInterest;");
+            migrationBuilder.Sql("DROP PROCEDURE IF EXISTS accrue_interest;");
         }
     }
 }

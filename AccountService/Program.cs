@@ -12,6 +12,7 @@ using AccountService.Persistence.Services.Domain;
 using AccountService.Persistence.Services.Infrastructure;
 using AccountService.Persistence.Services.Infrastructure.Outbox;
 using AccountService.Swagger;
+using Hangfire;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -81,6 +82,7 @@ if (dbConfig.GetValue<bool>("MustMigrate"))
     app.UseHangfireJobs();
 }
 
+app.UseHangfireDashboard();
 app.MapOpenApi();
 app.UseSwaggerAndSwaggerUi(builder.Configuration);
 
