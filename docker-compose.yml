@@ -15,7 +15,7 @@ services:
       - Authentication__RequireHttpsMetadata=false
       - Database__ConnectionString=Host=db;Port=5432;Database=modulbankdb;Username=modulbankuser;Password=modulbankpass
       - Database__MustMigrate=true
-      - ConnectionStrings__Hangfire="Host=db;Port=5432;Database=hangfiredb;Username=modulbankuser;Password=modulbankpass"
+      - ConnectionStrings__Hangfire=Host=db;Port=5432;Database=hangfiredb;Username=modulbankuser;Password=modulbankpass
       - RabbitMq__Host=bus
       - RabbitMq__VirtualHost=/
       - RabbitMq__User=guest
